@@ -10,19 +10,14 @@ class ClientSite:
 
     def start(self):
         """Start first connect to tracker"""
-        # tracker return a peerId
-        # self.peer.connectToTrackerForPeerID(trackerID, trackerPort)
-        # begin to be a seeder if have torrent => update peerList on tracker
-        # self.peer.listen()
         self.peer.start()
 
     def get_all_file(self):
         """get all file from tracker"""
         Files = self.peer.get_all_file()
-        # print all hashcode in a table
+        
         print(f"{'Name':<20} {'HashInfo'}")
         print("-" * 40)
-
         for file_name, hashcode in Files:
             print(f"{file_name:<20} {hashcode}")
 
