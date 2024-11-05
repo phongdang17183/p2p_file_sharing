@@ -3,6 +3,7 @@ from threading import Thread
 import json
 import ast
 import os
+import queue
 from dotenv import load_dotenv
 from utils import *
 
@@ -11,24 +12,29 @@ class Peer:
     def __init__(self, peer_host, peer_port):
         self.peer_host = peer_host
         self.peer_port = peer_port
-
+        
+        # self.messageTracker = queue.Queue()
+        self.messagePeer = queue.Queue()
+        
         self.__thread: dict[str, Thread] = {}
         self.__thread["listen"] = Thread(target=self.listen, args=())
-        # self.__thread["connectToPeer"] = Thread(target=self.download, agrs=())
-        # self.__thread["connectToTracker"] = Thread(target=self.download, agrs=())
+        self.__thread["connectToPeer"] = Thread(target=self.PeerProcess, args=())
+        # self.__thread["connectToTracker"] = Thread(target=self.TrackerProcess, args=())
     
-    def thread_hanldeling(type):
-        """Hanlde comming commnad from user"""
-        if(type == 1): #tracker
-        
-        elif (type == 2): #peer
-            
-        elif (type == 3): #listen
+    #---------PEER CONNECTION INTERACTION-------------#
+    
+    def PeerProcess(self):
+        """Hanlde peer process"""
 
     def download(self, magnet_text):
         """Handle download"""
         # self.tracker_socket
-        
+    #-------------------------------------------------#      
+    
+    
+    
+    #-------------PEER LISTENING INTERACTION------------#
+    
     def handle_incoming_connection(self, recv_socket, src_addr):
         """
         Handle a new connection and pass the message to the appropriate function (for peer connect peer ?!).
@@ -56,64 +62,72 @@ class Peer:
             except OSError:
                 break
 
+    #-------------------------------------------#
+    
+    #---------------------------------------------------# 
+    
+    
+    
+    #-----------TRACKER INTERACTION-------------#
+
+    def start(self): 
+        """start server listen thread"""
+        self.send_torrent_hashcodes(trackerIP, trackerPort)
+        self.__thread["listen"].start()
+        
     def send_torrent_hashcodes(self, trackerIP, trackerPort):
        
         # Lấy danh sách các tệp trong thư mục Torrent
         hashcodes = get_magnetTexts_from_torrent()  
        
-        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.tracker_socket.settimeout(2)
-        self.tracker_socket.connect((trackerIP, trackerPort))
+        tracker_socket = self.make_connection_to_tracker()
         print(f"Connected to tracker for sending hashcodes {trackerIP}:{trackerPort}")
         
         # Gửi danh sách hashcode cho tracker
         message = "START" + " " + self.peer_host + " " + str(self.peer_port) + " " + " ".join(hashcodes)
         print(message)   
-        self.tracker_socket.send(f"{message}".encode())
-        
+        tracker_socket.send(f"{message}".encode())
+        tracker_socket.close()
         print("Sent success")
         
     def get_all_file(self):
         """Fetch all file from Tracker"""
         
-        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.tracker_socket.settimeout(2)
-        self.tracker_socket.connect((trackerIP, trackerPort))
+        tracker_socket = self.make_connection_to_tracker()
         print(f"Connected to get all file {trackerIP}:{trackerPort}")
-        # connect to get a respond magnet text (all file from tracker)
-        # return []files
+       
         message = "FETCH ALL TORRENT"
-        self.tracker_socket.send(message.encode())
-        res = self.tracker_socket.recv(1024).decode("utf-8")
+        tracker_socket.send(message.encode())
+        res = tracker_socket.recv(1024).decode("utf-8")
         Files = ast.literal_eval(res)
+        tracker_socket.close()
         return Files
-        
-    def start(self):
-        
-        """start server listen thread"""
-        self.send_torrent_hashcodes(trackerIP, trackerPort)
-        self.__thread["listen"].start()
-
+            
     def upload_Torrent(self, filename):
         """upload torrent for tracker"""
-        message = "UPLOAD " + generate_Torrent(filename)
-        
-        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.tracker_socket.settimeout(2)
-        self.tracker_socket.connect((trackerIP, trackerPort))
+        tracker_socket = self.make_connection_to_tracker()
         print("connected to upload file")
         
-        self.tracker_socket.send(message.encode())
-        print(self.tracker_socket.recv(1024).decode("utf-8"))
+        message = "UPLOAD " + generate_Torrent(filename)
+        
+        tracker_socket.send(message.encode())
+        print(tracker_socket.recv(1024).decode("utf-8"))
+        tracker_socket.close()
 
+    def make_connection_to_tracker(self):
+        """connect to tracker"""
+        tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tracker_socket.settimeout(2)
+        tracker_socket.connect((trackerIP, trackerPort))
+        return tracker_socket
+    
     def exit(self, host, port):
-        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.tracker_socket.settimeout(2)
-        self.tracker_socket.connect((trackerIP, trackerPort))
+        tracker_socket = self.make_connection_to_tracker()
         message = "EXIT" + " " + host + " " + str(port)
-        self.tracker_socket.send(message.encode())
+        tracker_socket.send(message.encode())
+        tracker_socket.close()
         print("Exit success")
         
-    
+    #-------------------------------------------#
         
         

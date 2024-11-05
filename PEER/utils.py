@@ -54,7 +54,7 @@ def generate_Torrent(filename):
             "pieces": pieces
         }
     }
-    return json.dump(data)
+    return json.dumps(data)
 
 def get_magnetTexts_from_torrent():
     path = os.path.dirname(__file__)

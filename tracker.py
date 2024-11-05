@@ -1,48 +1,28 @@
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 from pymongo.collection import Collection
-
 import certifi
 import socket
 from threading import Thread
+import json
 
 
-def get_host_default():
+# Create a new client and connect to the server
+DATABASE_URL = "mongodb+srv://tranchinhbach:tranchinhbach@co3001.qkb5z.mongodb.net/?retryWrites=true&w=majority&appName=CO3001/"
+def get_host_default():  
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        s.connect(("8.8.8.8", 1))
+        s.connect(('8.8.8.8', 1))
         ip = s.getsockname()[0]
     except Exception:
-        print("err when get host default")
+        print('err when get host default')
         return None
     finally:
         s.close()
     return ip
 
-
-# Create a new client and connect to the server
-DATABASE_URL = "mongodb+srv://tranchinhbach:tranchinhbach@co3001.qkb5z.mongodb.net/?retryWrites=true&w=majority&appName=CO3001/tracker"
-# try:
-#     database = MongoClient(DATABASE_URL, tlsCAFile=certifi.where())
-#     print("Connected to MongoDB successfully.")
-# except Exception as e:
-#     print(f"Failed to connect to MongoDB: {e}")
-
-# server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# server_socket.bind(("localhost", 8080))  # Địa chỉ và cổng của server socket
-# server_socket.listen(5)
-
-# Send a ping to confirm a successful connection
-# tracker_db = database["tracker"]
-# torrentfile = tracker_db["torrentfile"]
-# documents = torrentfile.find()
-# for document in documents:
-#     print(str(document))
-
-
 class Tracker:
-    def __init__(self, host, port):
-        self.host = host
+    def __init__(self, port):
+        self.host = get_host_default()
         self.port = port
 
         self.tracker_socket: socket.socket = None
@@ -58,7 +38,9 @@ class Tracker:
 
         # Connnect to database
         try:
-            self.database = MongoClient(DATABASE_URL, tlsCAFile=certifi.where())
+            self.database = MongoClient(DATABASE_URL, tlsCAFile=certifi.where())[
+                "tracker"
+            ]
             self.torrent_file = self.database["torrentfile"]
             self.files = self.database["files"]
 
@@ -71,15 +53,86 @@ class Tracker:
         self.tracker_socket.bind((self.host, self.port))
         self.tracker_socket.listen(10)
 
+        # self.get_all_files("a", "v", "get all files")
+
         while True:
             peer_socket, peer_addr = self.tracker_socket.accept()
-            peer = Thread(target=self.recieve_torrent, args=(peer_socket, peer_addr))
+            peer = Thread(target=self.handle_request, args=(peer_socket, peer_addr))
             print(f"connect from {peer_addr}")
             peer.start()
 
-    def recieve_torrent(self, peer_socket, peer_addr):
-        torrent = peer_socket.recv(1024)
-        print(str(torrent))
+    def recieve_magnet(self, peer_socket: socket.socket, peer_addr, message):
+        magnet_list = message.split(" ")
+        address = (magnet_list[0], magnet_list[1])
+
+        for magnet in magnet_list[2:]:
+            existing_doc = self.files.find_one({"magnetText": magnet})
+            if existing_doc:
+                self.files.update_one(
+                    {"magnetText": magnet},
+                    {"$addToSet": {"list_peer": address}},
+                )
+
+            else:
+                document = {"magnetText": magnet, "list_peer": [address]}
+                self.files.insert_one(document)
+        print(f"recieve magnet {magnet_list} for {peer_addr}")
+
+        peer_socket.send(f"Updated successfully".encode("utf-8"))
+
+    def get_all_files(self, peer_socket: socket.socket, peer_addr, message):
+
+        result = self.torrent_file.find({})
+        names = [(doc["metaInfo"]["name"], doc["magnetText"]) for doc in result]
+        print(names)
+
+        print(f"get all files for {peer_addr}")
+
+        peer_socket.send(str(names).encode("utf-8"))
+
+    def peer_exit(self, peer_socket: socket.socket, peer_addr, message):
+
+        data = message.split(" ")
+        self.files.update_many({"list_peer": data}, {"$pull": {"list_peer": data}})
+        print(f"peer exit {peer_addr}")
+
+    def upload_file(self, peer_socket: socket.socket, peer_addr, message):
+
+        data = json.loads(message)
+        existing_document = self.torrent_file.find_one(
+            {"magnetText": data["magnetText"]}
+        )
+        if existing_document:
+            peer_socket.send(f"File already exists".encode("utf-8"))
+            print("File already exists")
+            return
+        self.torrent_file.insert_one(data)
+
+        print(f"upload file for {peer_addr}")
+        peer_socket.send(f"successfully".encode("utf-8"))
+
+    def peer_download(self, peer_socket: socket.socket, peer_addr, message):
+
+        data = json.loads(message)
+        torrent_file = self.torrent_file.find_one({"magnetText": data["magnetText"]})
+        peer_list = self.files.find_one({"magnetText": data["magnetText"]})["list_peer"]
+
+        peer_socket.send(f"Download file {data} for {peer_addr}".encode("utf-8"))
+
+    def handle_request(self, peer_socket: socket.socket, peer_addr):
+        print(f"accept connect from {peer_addr}")
+        message = peer_socket.recv(1024).decode("utf-8")
+
+        if message == "FETCH ALL TORRENT":
+            self.get_all_files(peer_socket, peer_addr, message)
+        elif message.startswith("START"):
+            self.recieve_magnet(peer_socket, peer_addr, message[6:])
+        elif message.startswith("EXIT"):
+            self.peer_exit(peer_socket, peer_addr, message[5:])
+        elif message.startswith("UPLOAD"):
+            self.upload_file(peer_socket, peer_addr, message[7:])
+        elif message.startswith("DOWNLOAD"):
+            self.peer_download(peer_socket, peer_addr, message[9:])
 
     def shutdown(self):
         for thread in self.__thread.values():
@@ -87,7 +140,10 @@ class Tracker:
 
         self.database.close()
 
+    # b"asjdhkajshdalks333333dhlaskd asjdhkajshdalksdhl222222askd asjdhkajshdalksdhl111111askd "
 
-ip = get_host_default()
-print(ip)
-tracker = Tracker(ip, 8081)
+
+if __name__ == "__main__":
+    ip = get_host_default()
+    print(ip)
+    tracker = Tracker(65432)
