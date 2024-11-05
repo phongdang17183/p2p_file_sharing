@@ -1,10 +1,14 @@
 {
-    "announce": "127.0.0.1",
-    "hashcode": "asjdhkajshdalks333333dhlaskd",
-    "info": {
-        "peerlist": "a,b,c,d",
+    "trackerIp": "127.0.0.1",
+    "magnetText": "asjdhkajshdalks333333dhlaskd",
+    "metaInfo": {
         "name": "dummy.txt",
         "length": 1298787,
-        "piece length": 524288
+        "piece length": 524288,
+        "pieces":  [
+            "187263918723619827361982",
+            "17263918723619287361238712",
+            "127381723018237012ajksd"
+        ]
     }
 }

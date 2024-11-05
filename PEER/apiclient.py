@@ -1,5 +1,6 @@
 from peer import Peer
 import socket
+from threading import Thread
 
 class ClientSite:
     """Interface to interact with client with api (like response entity or DTO)"""
@@ -7,35 +8,35 @@ class ClientSite:
     def __init__(self, peer: Peer):
         self.peer = peer
 
-    def start(self, trackerIP, trackerPort):
+    def start(self):
         """Start first connect to tracker"""
         # tracker return a peerId
         # self.peer.connectToTrackerForPeerID(trackerID, trackerPort)
         # begin to be a seeder if have torrent => update peerList on tracker
-        self.peer.send_torrent_hashcodes(trackerIP, trackerPort)
-        self.peer.listen()
+        # self.peer.listen()
+        self.peer.start()
 
-    def get_all_file(self, trackerIP, trackerPort):
+    def get_all_file(self):
         """get all file from tracker"""
-        files = self.peer.connectToTrackerGetAllFile(trackerIP, trackerPort)
+        self.peer.get_all_file()
         # print all hashcode in a table
-        print(f"{'Name':<20} {'HashInfo'}")
-        print("-" * 40)
+        # print(f"{'Name':<20} {'HashInfo'}")
+        # print("-" * 40)
 
-        for file in files:
-            name = file.get('name', 'N/A')
-            hash_info = file.get('hashInfo', 'N/A')
-            print(f"{name:<20} {hash_info}")
+        # for file in files:
+        #     name = file.get('name', 'N/A')
+        #     hash_info = file.get('hashInfo', 'N/A')
+        #     print(f"{name:<20} {hash_info}")
 
     def download(hashcode):
         """download with hashcode"""
         print("download")
     
-    def upload():
+    def upload(self, file_path):
         """upload torrent"""
-
-        print("upload") 
+        self.peer.upload_Torrent(file_path)
     
     def exit():
         """exit app """
+        
         # announce tracker to update peerlist

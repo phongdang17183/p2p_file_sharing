@@ -21,8 +21,10 @@ def main():
     # port = int(input("Enter Port (for listening): "))
     host = get_host_default()
     port = 1000
+    print("hi {} {}".format(host, port))
+    
     client = ClientSite(Peer(host, port))
-
+    
     while True:
         print("\nAvailable Commands:")
         print("1. Start")
@@ -34,12 +36,9 @@ def main():
         command = input("Enter command number: ")
 
         if command == "1":
-            trackerIP = input("enter tracker IP: ")
-            trackerPort = int(input("enter tracker Port: "))
-            print(trackerIP,trackerPort)
-            client.start(trackerIP, trackerPort)
+            client.start()
 
-        if command == "2":
+        elif command == "2":
             client.get_all_file()
 
         elif command == "3":
@@ -51,6 +50,7 @@ def main():
         
         elif command == "5":
             client.exit()
+            break
 
         else:
             print("Invalid command. Please try again.")
