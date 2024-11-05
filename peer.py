@@ -1,27 +1,30 @@
 import socket
 from threading import Thread
-
-# from message import *
-import requests
 import json
+import ast
 import os
-
-# from utils import *
-# from apitracker import TrackerSite
+from dotenv import load_dotenv
+from utils import *
 
 
 class Peer:
 
     def __init__(self, peer_host, peer_port):
-        # self.peer_id = None
         self.peer_host = peer_host
         self.peer_port = peer_port
 
         self.__thread: dict[str, Thread] = {}
-        self.__thread["listen"] = Thread(target=self.listen)
-        # self.__thread["connectToAnotherPeer"] = Thread(target=)
+        self.__thread["listen"] = Thread(target=self.listen, args=())
+        # self.__thread["connectToPeer"] = Thread(target=self.download, agrs=())
+        # self.__thread["connectToTracker"] = Thread(target=self.tracker, agrs=())
 
-    # def con
+    def thread_hanldeling(type):
+        """Hanlde comming commnad from user"""
+
+    def download(self, magnet_text):
+        """Handle download"""
+        # self.tracker_socket
+
     def handle_incoming_connection(self, recv_socket, src_addr):
         """
         Handle a new connection and pass the message to the appropriate function (for peer connect peer ?!).
@@ -35,8 +38,10 @@ class Peer:
         """
         self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listen_socket.bind((self.peer_host, self.peer_port))
+        print("Succes listening")
         print(self.listen_socket.getsockname())
         self.listen_socket.listen(5)
+        self.listen_socket.settimeout(2)
         while True:
             try:
                 recv_socket, src_addr = self.listen_socket.accept()
@@ -47,60 +52,67 @@ class Peer:
             except OSError:
                 break
 
-    # def connectToTrackerForPeerID(self, trackerId, trackerPort):
-    #     self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #     self.tracker_socket.connect((trackerId, trackerPort))
-    #     print(f"Connected to tracker for peerId{trackerId}:{trackerPort}")
-    #     # Gui request cho tracker
-    #     self.tracker_socket.send(b"REQUEST_PEERID")
-    #     # Nhận peerID từ tracker
-    #     peer_id = self.tracker_socket.recv(1024).decode()
-    #     print(f"Received peerID: {peer_id}")
-    #     # Lưu peerID vào thuộc tính
-    #     self.peer_id = peer_id
-
     def send_torrent_hashcodes(self, trackerIP, trackerPort):
-        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.tracker_socket.connect((trackerIP, trackerPort))
-        print(f"Connected to tracker for sending hashcodes {trackerIP}:{trackerPort}")
-        torrent_folder = "./Torrent"
 
         # Lấy danh sách các tệp trong thư mục Torrent
-        files = os.listdir(torrent_folder)
+        hashcodes = get_magnetTexts_from_torrent()
 
-        # Lọc các tệp JSON
-        hashcodes = []
-        for file_name in files:
-            if file_name.endswith(".json"):
-                try:
-                    with open(os.path.join(torrent_folder, file_name), "r") as file:
-                        data = json.load(file)
-                        hashcode = data.get("hashcode", None)
-                        if hashcode:
-                            hashcodes.append(hashcode)
-                except json.JSONDecodeError:
-                    print(f"Lỗi định dạng JSON trong tệp {file_name}. Bỏ qua tệp này.")
-                except Exception as e:
-                    print(f"Lỗi không xác định khi đọc tệp {file_name}: {e}")
+        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.tracker_socket.settimeout(2)
+        self.tracker_socket.connect((trackerIP, trackerPort))
+        print(f"Connected to tracker for sending hashcodes {trackerIP}:{trackerPort}")
 
         # Gửi danh sách hashcode cho tracker
-        torrents = ""
-        torrents = " ".join(hashcodes)
-        print(torrents)
-        self.tracker_socket.send(f"{torrents}".encode())
+        message = (
+            "START"
+            + " "
+            + self.peer_host
+            + " "
+            + str(self.peer_port)
+            + " "
+            + " ".join(hashcodes)
+        )
+        print(message)
+        self.tracker_socket.send(f"{message}".encode())
 
-        print("Sent all hashcodes to tracker")
+        print("Sent success")
 
-    def start(self):
-        self.send_torrent_hashcodes(trackerIP, trackerPort)
-        self.listen()
+    def get_all_file(self):
+        """Fetch all file from Tracker"""
 
-    def connectToTrackerGetAllFile(self, trackerId, trackerPort):
         self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.tracker_socket.connect((trackerId, trackerPort))
-        print(f"Connected to get all file {trackerId}:{trackerPort}")
+        self.tracker_socket.settimeout(2)
+        self.tracker_socket.connect((trackerIP, trackerPort))
+        print(f"Connected to get all file {trackerIP}:{trackerPort}")
         # connect to get a respond magnet text (all file from tracker)
         # return []files
+        message = "FETCH ALL TORRENT"
+        self.tracker_socket.send(message.encode())
+        res = self.tracker_socket.recv(1024).decode("utf-8")
+        Files = ast.literal_eval(res)
+        return Files
 
-    def download_file(self, list_peer):
-        for 
+    def start(self):
+        """start server listen thread"""
+        self.send_torrent_hashcodes(trackerIP, trackerPort)
+        self.__thread["listen"].start()
+
+    def upload_Torrent(self, filename):
+        """upload torrent for tracker"""
+        message = "UPLOAD " + generate_Torrent(filename)
+
+        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.tracker_socket.settimeout(2)
+        self.tracker_socket.connect((trackerIP, trackerPort))
+        print("connected to upload file")
+
+        self.tracker_socket.send(message.encode())
+        print(self.tracker_socket.recv(1024).decode("utf-8"))
+
+    def exit(self, host, port):
+        self.tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.tracker_socket.settimeout(2)
+        self.tracker_socket.connect((trackerIP, trackerPort))
+        message = "EXIT" + " " + host + " " + str(port)
+        self.tracker_socket.send(message.encode())
+        print("Exit success")

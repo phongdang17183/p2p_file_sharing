@@ -23,6 +23,8 @@ def main():
     # port = int(input("Enter Port (for listening): "))
     host = get_host_default()
     port = 1000
+    print("hi {} {}".format(host, port))
+
     client = ClientSite(Peer(host, port))
 
     while True:
@@ -36,23 +38,23 @@ def main():
         command = input("Enter command number: ")
 
         if command == "1":
-            trackerIP = input("enter tracker IP: ")
-            trackerPort = int(input("enter tracker Port: "))
-            print(trackerIP, trackerPort)
-            client.start(trackerIP, trackerPort)
+            client.start()
 
-        if command == "2":
+        elif command == "2":
             client.get_all_file()
 
         elif command == "3":
-            hashcode = input("enter torrent hashcode")
+            hashcode = input("Enter torrent hashcode: ")
             client.download(hashcode)
 
         elif command == "4":
-            client.upload()
+            print("Make sure your file is in folder Myfolder")
+            filename = input("Enter filename: ")
+            client.upload(filename)
 
         elif command == "5":
-            client.exit()
+            client.exit(host, port)
+            break
 
         else:
             print("Invalid command. Please try again.")

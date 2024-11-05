@@ -102,6 +102,14 @@ class Tracker:
         print(f"upload file for {peer_addr}")
         peer_socket.send(f"successfully".encode("utf-8"))
 
+    def peer_download(self, peer_socket: socket.socket, peer_addr, message):
+
+        data = json.loads(message)
+        torrent_file = self.torrent_file.find_one({"magnetText": data["magnetText"]})
+        peer_list = self.files.find_one({"magnetText": data["magnetText"]})["list_peer"]
+
+        peer_socket.send(f"Download file {data} for {peer_addr}".encode("utf-8"))
+
     def handle_request(self, peer_socket: socket.socket, peer_addr):
         print(f"accept connect from {peer_addr}")
         message = peer_socket.recv(1024).decode("utf-8")
@@ -114,6 +122,8 @@ class Tracker:
             self.peer_exit(peer_socket, peer_addr, message[5:])
         elif message.startswith("UPLOAD"):
             self.upload_file(peer_socket, peer_addr, message[7:])
+        elif message.startswith("DOWNLOAD"):
+            self.peer_download(peer_socket, peer_addr, message[9:])
 
     def shutdown(self):
         for thread in self.__thread.values():
