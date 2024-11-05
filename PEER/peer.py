@@ -24,9 +24,12 @@ class Peer:
 
         self.__thread: dict[str, Thread] = {}
         self.__thread["listen"] = Thread(target=self.listen, args=())
-        # self.__thread["connectToAnotherPeer"] = Thread(target=)
+        # self.__thread["connectToAnotherPeer"] = Thread(target=self.download, agrs=())
 
-    # def con
+    def download(self, magnet_text):
+        """Handle download"""
+        self.tracker_socket
+        
     def handle_incoming_connection(self, recv_socket, src_addr):
         """
         Handle a new connection and pass the message to the appropriate function (for peer connect peer ?!).

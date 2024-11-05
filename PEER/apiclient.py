@@ -26,9 +26,9 @@ class ClientSite:
         for file_name, hashcode in Files:
             print(f"{file_name:<20} {hashcode}")
 
-    def download(hashcode):
+    def download(self, hashcode):
         """download with hashcode"""
-        print("download")
+        self.peer.download(hashcode)
     
     def upload(self, filename):
         """upload torrent"""

@@ -42,7 +42,7 @@ def main():
             client.get_all_file()
 
         elif command == "3":
-            hashcode = input("Enter torrent hashcode")
+            hashcode = input("Enter torrent hashcode: ")
             client.download(hashcode)
 
         elif command == "4":
