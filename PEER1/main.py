@@ -20,7 +20,7 @@ def main():
     # host = input("Enter Host: ")
     # port = int(input("Enter Port (for listening): "))
     host = get_host_default()
-    port = 1000
+    port = 1001
     print("hi {} {}".format(host, port))
     
     client = ClientSite(Peer(host, port))
