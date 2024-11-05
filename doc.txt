@@ -27,16 +27,28 @@ file_info: -> json
     piece_size: int,
 }
 
-torrent_file: -> bencode 
+torrent file
 {
-    announce: string (url cua tracker)
-    info: {
-        file_name: string,
-        file_size: string,
-        piece_size: int,
-        pieces:  'pieces': b''.join(pieces),  # Concatenate the hashes list of piece (sha1)
+    "trackerIp": "127.0.0.1",
+    "magnetText": "asjdhkajshdalks333333dhlaskd",
+    "metaInfo": {
+        "name": "dummy.txt",
+        "length": 1298787,
+        "piece length": 524288,
+        "pieces":  [
+            "187263918723619827361982",
+            "17263918723619287361238712",
+            "127381723018237012ajksd"
+        ]
     }
 }
+
+file_name
+{
+    "magnetText" : "asdasdasd"
+    "list_peer": [(ip, port)]
+}
+
 
 
 tren db se chua: 
@@ -73,3 +85,56 @@ Trên tracker sẽ quản lý metainfo torrent file bao gồm các thông tin đ
 Trên node có 2 loại thread là server thread và client thread để thực hiện upload và download đồng thời.
 Trên node sẽ có file, metainfo file, danh sách cái peer có trong torrent, các danh sách piece mà cái peer đó có. 
 
+start :
+hashcode :{
+peerlist : 
+	so piece
+peicesize
+}
+flow:
+
+
+
+DATABASE có:
+torent file:
+hashcode :{
+	tracker: ip:port
+name
+	[]ip:port
+	so piece
+peicesize
+hash từng mảnh
+}
+
+peer:
+hashcode( key) [ (ip:port), adrr, adrr ]
+
+
+
+START: 
+peer ket noi vao tracker và lấy thông tin toàn bộ các magnet( hashcode ) đang có trong hệ thống, update peer list 
+	GET ALL FILE:..
+
+	
+	UPLOAD:
+peer hashfile gửi metainfo cho tracker:
+
+hashcode :{
+	tracker: ip:pỏrt
+name
+	so piece
+peicesize
+hash từng mảnh
+}
+
+	DOWNLOAD: + hashcode
+// JOIN
+( theo bách
+	gửi thêm peer list: …
+	upload peerlist 
+)
+peer job
+
+[(filename: "", "magnetText")]
+
+test truong hop file chi co tren local ko co tren tracker

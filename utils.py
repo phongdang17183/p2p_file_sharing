@@ -1,4 +1,5 @@
 import bencodepy
+import socket
 
 
 PIECE_SIZE = 512 * 1024  # 512 KB
@@ -26,3 +27,16 @@ def split_file(filepath, filename, piece_size=512 * 1024):
             list_pieces.append(chunk)
 
     return (list_pieces, piece_size)
+
+
+def get_host_default():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 1))
+        ip = s.getsockname()[0]
+    except Exception:
+        print("err when get host default")
+        return None
+    finally:
+        s.close()
+    return ip

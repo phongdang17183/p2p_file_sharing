@@ -1,4 +1,5 @@
 from peer import Peer
+import socket
 
 
 class ClientSite:
@@ -6,21 +7,36 @@ class ClientSite:
 
     def __init__(self, peer: Peer):
         self.peer = peer
-        self.success = False
 
-    def register(self, username, password):
-        """Register username and password to the tracker"""
-        response = self.peer.register(username, password)
-        print("register success: ", response)
-        return response
+    def start(self, trackerIP, trackerPort):
+        """Start first connect to tracker"""
+        # tracker return a peerId
+        # self.peer.connectToTrackerForPeerID(trackerID, trackerPort)
+        # begin to be a seeder if have torrent => update peerList on tracker
 
-    def login(self, username, password):
-        """Login to the tracker"""
-        response = self.peer.login(username, password)
-        print("login success")
-        return response
+        self.peer.start()
 
-    def exit(self):
-        """Exit the client"""
-        self.peer.exit()
-        print("Exiting the client.")
+    def get_all_file(self, trackerIP, trackerPort):
+        """get all file from tracker"""
+        files = self.peer.connectToTrackerGetAllFile(trackerIP, trackerPort)
+        # print all hashcode in a table
+        print(f"{'Name':<20} {'HashInfo'}")
+        print("-" * 40)
+
+        for file in files:
+            name = file.get("name", "N/A")
+            hash_info = file.get("hashInfo", "N/A")
+            print(f"{name:<20} {hash_info}")
+
+    def download(hashcode):
+        """download with hashcode"""
+        print("download")
+
+    def upload():
+        """upload torrent"""
+
+        print("upload")
+
+    def exit():
+        """exit app"""
+        # announce tracker to update peerlist
