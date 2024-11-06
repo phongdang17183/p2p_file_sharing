@@ -1,0 +1,17 @@
+{
+    "trackerIp": "10.10.2.182",
+    "magnetText": "389e4228f46e5ed353842a8c9366cb5e181c696e",
+    "metaInfo": {
+        "name": "123.png",
+        "filesize": 20567,
+        "piece_size": 4096,
+        "pieces": [
+            "cb07cdcebded243e3bcbd5cd8c2c9de87d8d6a68",
+            "da826a781a5b8b9784143302a2dda2c8ca3c4421",
+            "e566f3f18cf54c1e5c2ca499633a3c06eac5fe15",
+            "8f874f693efaa1b01bec0e8f3de5aeb6b401f9e6",
+            "e228bb941f3613a4a5e967970e969e80aae71661",
+            "e024e67896eae5180cea35579171f1fae31396fc"
+        ]
+    }
+}
