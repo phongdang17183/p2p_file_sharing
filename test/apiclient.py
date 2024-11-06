@@ -12,7 +12,6 @@ class ClientSite:
     def start(self):
         """Start first connect to tracker"""
         self.peer.start()
-        # print('hello')
 
     def get_all_file(self):
         """get all file from tracker"""

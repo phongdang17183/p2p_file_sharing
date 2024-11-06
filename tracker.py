@@ -66,6 +66,7 @@ class Tracker:
 
             else:
                 document = {"magnetText": magnet, "list_peer": [address]}
+                print(address)
                 self.files.insert_one(document)
         print(f"recieve magnet {magnet_list} for {peer_addr}")
 
@@ -89,34 +90,47 @@ class Tracker:
 
     def upload_file(self, peer_socket: socket.socket, peer_addr, message):
 
-        data = json.loads(message)
+        data_list = message.split(" ", 2)
+
+        addr = (data_list[0], data_list[1])
+
+        data = json.loads(data_list[2])
         existing_document = self.torrent_file.find_one(
             {"magnetText": data["magnetText"]}
         )
         if existing_document:
-            peer_socket.send(
-                f"File already exists with name {existing_document['metaInfo']['name']}".encode(
-                    "utf-8"
-                )
-            )
+            existing_document
+            peer_socket.send(f"File already exists".encode("utf-8"))
             print("File already exists")
             return
 
         self.torrent_file.insert_one(data)
+        self.files.insert_one(
+            {
+                "magnetText": data["magnetText"],
+                "list_peer": [addr],
+            },
+        )
 
         print(f"upload file for {peer_addr}")
-        peer_socket.send(f"successfully".encode("utf-8"))
+        peer_socket.send(f"Uploaded successfully".encode("utf-8"))
 
-    def peer_download(self, peer_socket: socket.socket, peer_addr, magnetText):
+    def peer_download(self, peer_socket: socket.socket, peer_addr, message):
 
-        magnetText = magnetText
-        print(magnetText)
+        data_list = message.split(" ", 2)
+        addr = [data_list[0], data_list[1]]
+
+        magnetText = data_list[2]
+
         torrent_file = self.torrent_file.find_one({"magnetText": magnetText})
+        print(torrent_file)
         torrent_file.pop("_id")
+
         peer_list = self.files.find_one({"magnetText": magnetText})["list_peer"]
 
-        if not peer_list:
-            peer_list = "No seeder for download"
+        peer_list = [peer for peer in peer_list if peer != addr]
+
+        print(peer_list)
 
         data = {
             "torrent_file": torrent_file,
@@ -129,7 +143,7 @@ class Tracker:
 
     def handle_request(self, peer_socket: socket.socket, peer_addr):
         print(f"accept connect from {peer_addr}")
-        message = peer_socket.recv(1024).decode("utf-8")
+        message = peer_socket.recv(102400).decode("utf-8")
 
         if message == "FETCH ALL TORRENT":
             self.get_all_files(peer_socket, peer_addr, message)

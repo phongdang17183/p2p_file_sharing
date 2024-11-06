@@ -31,15 +31,15 @@ def make_attribute_torrent(filename, piece_size=4):
 
     size = os.stat(fullpath).st_size
 
-    with open(fullpath, "r") as f:
+    with open(fullpath, "rb") as f:
         while True:
             piece = f.read(piece_size)
             if not piece:
                 break
-            piece = piece.encode()
-            piece_hash = hashlib.sha1(piece).hexdigest()
-            piece_hashes.append(piece_hash)
-            hashinfo.update(piece_hash.encode())
+
+            piece_hash = hashlib.sha1(piece).digest()
+            piece_hashes.append(piece_hash.hex())
+            hashinfo.update(piece_hash)
 
     return hashinfo.hexdigest(), piece_hashes, size, piece_size
 
@@ -51,7 +51,7 @@ def generate_Torrent(filename):
         "trackerIp": trackerIP,
         "magnetText": magnet_text,
         "metaInfo": {
-            "name": filename,
+            "name": filename.split(".")[0],
             "filesize": size,
             "piece_size": piece_size,
             "pieces": pieces,
@@ -121,11 +121,7 @@ def create_temp_file(data, piece_count, torrent):
 
 def check_sum_piece(data, listPiece, piece_count):
     """check"""
-    hashPiece = hashlib.sha1(data.encode()).hexdigest()
-    print(piece_count)
-    print(hashPiece)
-    print(listPiece[piece_count])
-    print("")
+    hashPiece = hashlib.sha1(data).digest().hex()
     if hashPiece == listPiece[piece_count]:
         return True
     else:
@@ -135,22 +131,16 @@ def check_sum_piece(data, listPiece, piece_count):
 def check_file(filename, torrent_file):
     status = []
     path = os.path.dirname(__file__)
-    filename = torrent_file["metaInfo"]["name"]
-    print(torrent_file)
-    fullpath = os.path.join(path, "MyFolder", torrent_file["metaInfo"]["name"])
-    print(fullpath)
-    index = 0
-    with open(fullpath, "r") as file:
+    fullpath = os.path.join(path, "MyFolder", filename)
+    with open(fullpath, "rb") as file:
         while True:
+            index = 0
             piece = file.read(torrent_file["metaInfo"]["piece_size"])
-            # print(piece)
             if not piece:
                 break
             status.append(
                 check_sum_piece(piece, torrent_file["metaInfo"]["pieces"], index)
             )
-            index = index + 1
-
     return status
 
 
