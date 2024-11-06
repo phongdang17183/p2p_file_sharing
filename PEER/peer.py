@@ -111,6 +111,7 @@ class Peer:
         status = check_file(filename, torrent_file)
 
         send_socket = recv_socket.sendall(str(status).encode("utf-8"))
+        print(send_socket)
 
     def listen(self):
         """
