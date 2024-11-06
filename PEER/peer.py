@@ -38,7 +38,7 @@ class Peer:
         print("Make connect to peer to get status {} : {}".format(peer[0],peer[1]))
         message = "STATUS " +  data_torrent['magnetText']
         peer_socket.send(message.encode())
-        res = peer_socket.recv(1024000).decode("uft-8")
+        res = peer_socket.recv(1024000).decode("utf-8")
         # print(res)
         with lock:
             status.append(res)
