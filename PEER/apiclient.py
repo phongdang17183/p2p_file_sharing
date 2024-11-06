@@ -21,6 +21,7 @@ class ClientSite:
         print("-" * 40)
         for file_name, hashcode in Files:
             print(f"{file_name:<20} {hashcode}")
+        return Files
 
     def download(self, hashcode):
         """download with hashcode"""

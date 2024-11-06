@@ -1,16 +1,16 @@
 {
     "trackerIp": "10.10.2.182",
-    "magnetText": "860fc01187260ec790b0460f665a5d071b64ccd5",
+    "magnetText": "db941d010f69711d39ee08e64c1f8c86f403d324",
     "metaInfo": {
         "name": "text4.txt",
-        "filesize": 20,
+        "filesize": 19,
         "piece_size": 4,
         "pieces": [
-            "f12bd5288d63324b2cc0829f863884800e6573e0",
-            "6062d0fdf0ef04f0f8bfe72941dc3f453b658bc8",
-            "b75d067cce2904ba5107f4731907b54d4d8fcc26",
-            "56900fb1d337cf7237ff766276b9c1e8ce507427",
-            "32096c2e0eff33d844ee6d675407ace18289357d"
+            "7110eda4d09e062aa5e4a390b0a572ac0d2c0220",
+            "2abd55e001c524cb2cf6300a89ca6366848a77d5",
+            "a87735b529ab29eb321db69edb7c5dfe987f25a8",
+            "f40223e17acd3d1e3d09290da96262f13e196bb6",
+            "1b6453892473a467d07372d45eb05abc2031647a"
         ]
     }
 }

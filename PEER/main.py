@@ -1,9 +1,7 @@
 import socket
 from apiclient import ClientSite
 from peer import Peer
-from threading import Thread
-import tkinter as tk
-from tkinter import messagebox
+
 
 def get_host_default():  
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
