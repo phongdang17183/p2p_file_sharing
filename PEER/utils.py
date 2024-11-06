@@ -54,7 +54,6 @@ def generate_Torrent(filename):
             "pieces": pieces
         }
     }
-    create_torrent_file(filename.split('.')[0], data)
     return json.dumps(data)
 
 def get_magnetTexts_from_torrent():
@@ -71,7 +70,6 @@ def get_magnetTexts_from_torrent():
         if hashcode is not None:
             hashcodes[hashcode] = file_name
             
-    print(hashcodes)     
     return hashcodes
                     
 def get_hashcode(fullpath, file_name):

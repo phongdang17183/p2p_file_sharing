@@ -125,6 +125,7 @@ class Peer:
         while True:
             try:
                 recv_socket, src_addr = self.listen_socket.accept()
+                print("connected")
                 message = recv_socket.recv(1024000).decode("utf-8")
                 if message.startswith("STATUS"):
                     self.handle_status(recv_socket, src_addr, message[7:])
@@ -150,6 +151,9 @@ class Peer:
         # Lấy danh sách các tệp trong thư mục Torrent
         self.magnet_text_list = get_magnetTexts_from_torrent()  
         keys = list(self.magnet_text_list.keys())
+        if len(keys) == 0 :
+            return
+    
         tracker_socket = self.make_connection_to_tracker()
         print(f"Connected to tracker for sending hashcodes {trackerIP}:{trackerPort}")
         
@@ -178,10 +182,12 @@ class Peer:
         tracker_socket = self.make_connection_to_tracker()
         print("connected to upload file")
         
-        message = "UPLOAD " + generate_Torrent(filename)
+        message = "UPLOAD " + self.peer_host + " " + str(self.peer_port) + " " + generate_Torrent(filename)
         print(message)
         tracker_socket.send(message.encode())
         print(tracker_socket.recv(1024).decode("utf-8"))
+        
+        create_torrent_file(filename.split('.')[0], json.loads(generate_Torrent(filename)))
         tracker_socket.close()
 
     def make_connection_to_tracker(self):
