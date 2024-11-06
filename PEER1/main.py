@@ -2,8 +2,6 @@ import socket
 from apiclient import ClientSite
 from peer import Peer
 from threading import Thread
-import tkinter as tk
-from tkinter import messagebox
 
 def get_host_default():  
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -23,7 +21,7 @@ def main():
     # host = input("Enter Host: ")
     # port = int(input("Enter Port (for listening): "))
     host = get_host_default()
-    port = 1000
+    port = 2000
     print("hi {} {}".format(host, port))
     
     client = ClientSite(Peer(host, port))
