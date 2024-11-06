@@ -18,17 +18,30 @@ class Peer:
         
         self.__thread: dict[str, Thread] = {}
         self.__thread["listen"] = Thread(target=self.listen, args=())
-        self.__thread["connectToPeer"] = Thread(target=self.PeerProcess, args=())
-        # self.__thread["connectToTracker"] = Thread(target=self.TrackerProcess, args=())
+        self.__thread["connectToPeer"] = Thread(target=self.PeerProcess, args=(magnetText))
     
     #---------PEER CONNECTION INTERACTION-------------#
     
-    def PeerProcess(self):
-        """Hanlde peer process"""
+    def DownloadProcess(self):
+        """Hanlde download process"""
+        
 
     def download(self, magnet_text):
         """Handle download"""
-        # self.tracker_socket
+        tracker_socket = self.make_connection_to_tracker()
+        print(f"Connected to tracker for download torrent {trackerIP}:{trackerPort}")
+        
+        message = "DOWNLOAD " + magnet_text 
+        print(message)
+        tracker_socket.send(message.encode())
+        
+        res = tracker_socket.recv(1024).decode("utf-8")
+        PeerListForDownloadFile = ast.literal_eval(res)
+        tracker_socket.close()
+        
+        downloadThread = Thread(target=self.DownloadProcess, args=(PeerListForDownloadFile, magnet_text))
+        downloadThread.start()
+        downloadThread.join()
     #-------------------------------------------------#      
     
     
