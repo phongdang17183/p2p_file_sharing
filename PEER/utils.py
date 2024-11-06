@@ -100,7 +100,7 @@ def create_torrent_file(file_name, data_torrent):
 def create_temp_file(data, piece_count, torrent):
     """tao temp file cho piece"""
     #check sum + create file tmp
-    if check_sum(data, torrent['metaInfo']['pieces'], piece_count):
+    if check_sum_piece(data, torrent['metaInfo']['pieces'], piece_count):
     
         path = os.path.dirname(__file__)
         file_name = torrent['metaInfo']['name'] + "_" +str(piece_count) + ".tmp"
@@ -113,7 +113,7 @@ def create_temp_file(data, piece_count, torrent):
     else: 
         print("data loi khi check sum.")
 
-def check_sum(data, listPiece,  piece_count):
+def check_sum_piece(data, listPiece,  piece_count):
     """check"""
     hashPiece = hashlib.sha1(data).digest().hex()
     if(hashPiece == listPiece[piece_count]):
