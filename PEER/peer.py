@@ -108,6 +108,7 @@ class Peer:
     def handle_status(self, recv_socket: socket.socket, src_addr, magnetText):
         """Handle status"""
         filename = self.magnet_text_list[magnetText]
+        filename = filename.split('.')[0] + ".json"
         path = os.path.dirname(__file__)
         fullpath = os.path.join(path, "Torrent", filename)
         with open(fullpath, "r") as file:
@@ -194,8 +195,13 @@ class Peer:
         print(message)
         tracker_socket.send(message.encode())
         res = (tracker_socket.recv(1024).decode("utf-8"))
-        if(res == "File already exists"): 
+        if(res != "File already exists"): 
             create_torrent_file(filename.split('.')[0], json.loads(generate_Torrent(filename)))
+            
+        magnet_text = json.loads(generate_Torrent(filename))['magnetText']
+        self.magnet_text_list[magnet_text] = filename
+        print(self.magnet_text_list)
+        
         tracker_socket.close()
 
     def make_connection_to_tracker(self):

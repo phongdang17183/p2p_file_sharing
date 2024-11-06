@@ -29,15 +29,15 @@ def make_attribute_torrent(filename , piece_size=4):
     
     size =  os.stat(fullpath).st_size
     
-    with open(fullpath, 'rb') as f:
+    with open(fullpath, 'r') as f:
         while True:
             piece = f.read(piece_size)
             if not piece:
                 break 
-            
-            piece_hash = hashlib.sha1(piece).digest()  
-            piece_hashes.append(piece_hash.hex())
-            hashinfo.update(piece_hash)
+            piece = piece.encode()
+            piece_hash = hashlib.sha1(piece).hexdigest()  
+            piece_hashes.append(piece_hash)
+            hashinfo.update(piece_hash.encode())
             
     return hashinfo.hexdigest(), piece_hashes, size, piece_size
     
@@ -131,7 +131,7 @@ def check_file(filename, torrent_file):
     fullpath = os.path.join(path, "MyFolder", torrent_file['metaInfo']['name'])
     print(fullpath)
     index = 0
-    with open(fullpath, "rb") as file:
+    with open(fullpath, "r") as file:
         while True:
             piece = file.read(torrent_file["metaInfo"]["piece_size"])
             # print(piece)
