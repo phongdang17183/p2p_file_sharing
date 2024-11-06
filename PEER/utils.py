@@ -48,12 +48,13 @@ def generate_Torrent(filename):
         "trackerIp": trackerIP,
         "magnetText": magnet_text,
         "metaInfo": {
-            "name": filename,
+            "name": filename.split('.')[0],
             "filesize": size,
             "piece_size": piece_size,
             "pieces": pieces
         }
     }
+    create_torrent_file(filename.split('.')[0], data)
     return json.dumps(data)
 
 def get_magnetTexts_from_torrent():
@@ -61,14 +62,14 @@ def get_magnetTexts_from_torrent():
     fullpath = os.path.join(path, "Torrent")
     
     # Lấy danh sách các tệp trong thư mục Torrent
-    hashcodes = []
+    hashcodes = {}
     files = os.listdir(fullpath)
     json_files = [file for file in files if file.endswith('.json')]
     
     for file_name in json_files:
         hashcode = get_hashcode(fullpath, file_name)
         if hashcode is not None:
-            hashcodes.append(hashcode)
+            hashcodes[hashcode] = file_name
             
     print(hashcodes)     
     return hashcodes
@@ -87,4 +88,55 @@ def get_hashcode(fullpath, file_name):
     except Exception as e:
         print(f"Lỗi khi đọc tệp {file_name}: {e}")
         
+def create_torrent_file(file_name, data_torrent):
+    """Tạo một tệp .json mới từ dữ liệu JSON."""
+    path = os.path.dirname(__file__)
+    file_name +=  ".json"
+    fullpath = os.path.join(path, "Torrent", file_name)
+    with open(fullpath, 'w') as json_file:
+        json.dump(data_torrent, json_file, indent=4)
+    print(f"Tệp {file_name} đã được tạo thành công.")
+
+def create_temp_file(data, piece_count, torrent):
+    """tao temp file cho piece"""
+    #check sum + create file tmp
+    if check_sum(data, torrent['metaInfo']['pieces'], piece_count):
+    
+        path = os.path.dirname(__file__)
+        file_name = torrent['metaInfo']['name'] + "_" +str(piece_count) + ".tmp"
+        fullpath = os.path.join(path, "Temp", file_name)
         
+        with open(fullpath, 'wb') as f:
+            f.write(data)
+        print(f"Tệp {file_name} đã được tạo thành công.")
+    
+    else: 
+        print("data loi khi check sum.")
+
+def check_sum(data, listPiece,  piece_count):
+    """check"""
+    hashPiece = hashlib.sha1(data).digest().hex()
+    if(hashPiece == listPiece[piece_count]):
+        return True
+    else:
+        return False
+    
+def merge_temp_files(output_file, filename):
+    """Gộp tất cả các tệp .tmp trong thư mục temp thành một tệp duy nhất."""
+    path = os.path.dirname(__file__)
+    fullpath = os.path.join(path,"Download", output_file)
+    
+    with open(fullpath, 'wb') as outfile:
+        # Lấy danh sách tất cả các tệp .tmp trong thư mục temp và sắp xếp chúng
+        temp_files = sorted([f for f in os.listdir(os.path.join(path,"Temp")) if f.endswith('.tmp') and f.startswith(filename)],
+                            key=lambda x: int(x.split('_')[1].split('.')[0]))  # Giả sử tên tệp có dạng 'piece_1.tmp'
+        
+        # Duyệt qua từng tệp .tmp và ghi nội dung vào tệp đích
+        for temp_file in temp_files:
+            temp_file_path = os.path.join(os.path.join(path,"Temp"), temp_file)
+            with open(temp_file_path, 'rb') as infile:
+                outfile.write(infile.read())  # Đọc và ghi toàn bộ nội dung vào tệp đích
+    
+    print(f"Đã gộp tất cả các tệp .tmp thành tệp duy nhất: {output_file}")
+    
+    

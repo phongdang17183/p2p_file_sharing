@@ -1,5 +1,5 @@
 import socket
-from threading import Thread
+from threading import Thread, Lock
 import json
 import ast
 import os
@@ -13,6 +13,7 @@ class Peer:
         self.peer_host = peer_host
         self.peer_port = peer_port
         
+        self.magnet_text_list = {}
         # self.messageTracker = queue.Queue()
         self.messagePeer = queue.Queue()
         
@@ -22,35 +23,77 @@ class Peer:
     
     #---------PEER CONNECTION INTERACTION-------------#
     
-    def DownloadProcess(self, peerList, magnet_text):
+    def make_connection_to_peer(self, peer):
+        peer_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        peer_socket.settimeout(2)
+        peer_socket.connect((peer[0],int(peer[1])))
+        return peer_socket
+        
+     
+    def download_status_from_peer(self, peer, data_torrent, status, lock):
+        """Download the status"""
+        peer_socket = self.make_connection_to_peer(peer)
+        print("Make connect to peer to get status {} : {}".format(peer[0],peer[1]))
+        message = "STATUS " +  data_torrent['magnetText']
+        peer_socket.send(message.encode())
+        res = peer_socket.recv(1024000).decode("uft-8")
+        with lock:
+            status.append(res)
+        peer_socket.close()
+        
+    def download_pieces_from_peer(self, peer, piece_count, data_torrent):
+        """Download the piece"""
+        peer_socket = self.make_connection_to_peer(peer)
+        print("Make connect to peer to get piece {} : {}".format(peer[0],peer[1]))
+        message = "PIECE " + str(piece_count) + " " + data_torrent['magnet_text']
+        peer_socket.send(message.encode())
+        res = peer_socket.recv(1024000).decode("uft-8")
+        create_temp_file( res, piece_count, data_torrent)
+        
+    def DownloadProcess(self, peerList, data_torrent):
         """Handle download process for each peer in the peerList"""
-        threads = []
-    
+        threadsStatus = []
+        threadsPiece = []
+        status = []
+        lock = Lock()
         # Tạo thread cho mỗi peer
         for peer in peerList:
-            thread = Thread(target=self.download_status_from_peer, args=(peer, magnet_text))
-            threads.append(thread)
+            thread = Thread(target=self.download_status_from_peer, args=(peer, data_torrent, status, lock))
+            threadsStatus.append(thread)
             thread.start()
-        
+
         # Chờ tất cả các thread hoàn thành
-        for thread in threads:
+        for thread in threadsStatus:
             thread.join()
         
-        print("Tất cả các peer đã hoàn thành quá trình tải xuống.")
+        piece_count = 0
+        # Tao thread de download cac piece cua file
+        for peer in peerList:
+            thread = Thread(target=self.download_pieces_from_peer, args=(peer, piece_count, data_torrent))
+            threadsPiece.append(thread)
+            thread.start()
+            piece_count += 1
         
-    def download_status_from_peer(self, peer, magnet_text):
-        """Download the status"""
+        for thread in threadsPiece:
+            thread.join()
         
+        merge_temp_files("ouput.txt", data_torrent['metaInfo']['name'])
         
     def download(self, magnet_text):
         """Handle download"""
+        
         data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
-        print(data_torrent)
-        print(peer_list)
-        print("Your download is being process, enter 6 to see detail")
-        downloadThread = Thread(target=self.DownloadProcess, args=(PeerListForDownloadFile, magnet_text))
+        
+        filename = data_torrent['metaInfo']['name']
+        if data_torrent['magnetText'] not in self.magnet_text_list:
+            create_torrent_file(filename, data_torrent)
+        else:
+            print("You already have torrent")
+            
+        print("Your download is being process, enter 6 to see detail {}".format(peer_list))
+        
+        downloadThread = Thread(target=self.DownloadProcess, args=(peer_list, data_torrent))
         downloadThread.start()
-        downloadThread.join()
         
     #-------------------------------------------------#      
     
@@ -101,13 +144,13 @@ class Peer:
     def send_torrent_hashcodes(self, trackerIP, trackerPort):
        
         # Lấy danh sách các tệp trong thư mục Torrent
-        hashcodes = get_magnetTexts_from_torrent()  
-       
+        self.magnet_text_list = get_magnetTexts_from_torrent()  
+        keys = list(self.magnet_text_list.keys())
         tracker_socket = self.make_connection_to_tracker()
         print(f"Connected to tracker for sending hashcodes {trackerIP}:{trackerPort}")
         
         # Gửi danh sách hashcode cho tracker
-        message = "START" + " " + self.peer_host + " " + str(self.peer_port) + " " + " ".join(hashcodes)
+        message = "START" + " " + self.peer_host + " " + str(self.peer_port) + " " + " ".join(keys)
         print(message)   
         tracker_socket.send(f"{message}".encode())
         tracker_socket.close()
@@ -132,7 +175,7 @@ class Peer:
         print("connected to upload file")
         
         message = "UPLOAD " + generate_Torrent(filename)
-        
+        print(message)
         tracker_socket.send(message.encode())
         print(tracker_socket.recv(1024).decode("utf-8"))
         tracker_socket.close()
@@ -149,6 +192,7 @@ class Peer:
         message = "EXIT" + " " + host + " " + str(port)
         tracker_socket.send(message.encode())
         tracker_socket.close()
+        self.__thread["listen"].join()
         print("Exit success")
         
     def download_torrent_from_tracker(self, magnet_text):
@@ -160,7 +204,7 @@ class Peer:
         tracker_socket.send(message.encode())
         
         #  hanlde respond from tracker
-        res = tracker_socket.recv(1024).decode("utf-8")
+        res = tracker_socket.recv(1024000).decode("utf-8")
         data_torrent = json.loads(res)['torrent_file']
         data_list = json.loads(res)['peer_list']
         tracker_socket.close()
