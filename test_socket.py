@@ -33,4 +33,10 @@ json_data = json.dumps(data)
 message3 = "UPLOAD " + json_data
 message4 = "FETCH ALL TORRENT"
 
-s.send(message4.encode("utf-8"))
+message5 = "DOWNLOAD de9606a4a16a251304dd0095a00f86419cf01f0a"
+
+s.send(message5.encode("utf-8"))
+message = s.recv(1024).decode("utf-8")
+message = json.loads(message)
+print(message)
+print(type(message["peer_list"]))

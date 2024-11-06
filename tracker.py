@@ -1,6 +1,6 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.collection import Collection
-from utils import get_host_default
+from utils import *
 import certifi
 import socket
 from threading import Thread
@@ -94,21 +94,38 @@ class Tracker:
             {"magnetText": data["magnetText"]}
         )
         if existing_document:
-            peer_socket.send(f"File already exists".encode("utf-8"))
+            peer_socket.send(
+                f"File already exists with name {existing_document['metaInfo']['name']}".encode(
+                    "utf-8"
+                )
+            )
             print("File already exists")
             return
+
         self.torrent_file.insert_one(data)
 
         print(f"upload file for {peer_addr}")
         peer_socket.send(f"successfully".encode("utf-8"))
 
-    def peer_download(self, peer_socket: socket.socket, peer_addr, message):
+    def peer_download(self, peer_socket: socket.socket, peer_addr, magnetText):
 
-        data = json.loads(message)
-        torrent_file = self.torrent_file.find_one({"magnetText": data["magnetText"]})
-        peer_list = self.files.find_one({"magnetText": data["magnetText"]})["list_peer"]
+        magnetText = magnetText
+        print(magnetText)
+        torrent_file = self.torrent_file.find_one({"magnetText": magnetText})
+        torrent_file.pop("_id")
+        peer_list = self.files.find_one({"magnetText": magnetText})["list_peer"]
 
-        peer_socket.send(f"Download file {data} for {peer_addr}".encode("utf-8"))
+        if not peer_list:
+            peer_list = "No seeder for download"
+
+        data = {
+            "torrent_file": torrent_file,
+            "peer_list": peer_list,
+        }
+        message = json.dumps(data)
+        peer_socket.sendall(message.encode("utf-8"))
+
+        print(f"Download file {magnetText} for {peer_addr}".encode("utf-8"))
 
     def handle_request(self, peer_socket: socket.socket, peer_addr):
         print(f"accept connect from {peer_addr}")

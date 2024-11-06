@@ -15,8 +15,8 @@ class ClientSite:
 
     def get_all_file(self):
         """get all file from tracker"""
-        Files = self.peer.get_all_file()
 
+        Files = self.peer.get_all_file()
         print(f"{'Name':<20} {'HashInfo'}")
         print("-" * 40)
         for file_name, hashcode in Files:
