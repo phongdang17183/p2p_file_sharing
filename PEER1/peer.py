@@ -6,6 +6,8 @@ import os
 import queue
 from dotenv import load_dotenv
 from utils import *
+import random
+
 
 
 class Peer:
@@ -78,6 +80,12 @@ class Peer:
 
         piece_to_peer = contruct_piece_to_peers(list_status)
         print(piece_to_peer)
+        # {0: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
+        #  1: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
+        #  2: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
+        #  3: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
+        #  4: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
+        #  5: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']]}
 
         # get piece
         try:

@@ -23,7 +23,7 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size=512):
+def make_attribute_torrent(filename, piece_size= 8):
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
