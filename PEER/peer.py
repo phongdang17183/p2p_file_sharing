@@ -187,27 +187,18 @@ class Peer:
 
         fullpath = os.path.join(path, "MyFolder", filename)
         piece = None
-        with open(fullpath, "r") as file:
-            if piece_index == 0:
-                piece = file.read(piece_size)
+        with open(fullpath, "rb") as file:
+            # for index in range(piece_index+1):
+            #     piece = file.read(piece_size)
+            file.seek(piece_index*piece_size)
+            piece = file.read(piece_size)
+                    
+            if not check_sum_piece(
+                piece, torrent_file["metaInfo"]["pieces"], piece_index
+            ):
+                recv_socket.sendall(str("False").encode("utf-8"))
             else:
-                for index in range(piece_index):
-                    # longdata = file.read(piece_size*piece_index)
-                    # shortdata = file.read(piece_size*(piece_index-1))
-                    # piece = longdata.replace(shortdata,"", 1)
-                    # index = piece_index * piece_size
-                    # if(piece_index == 0):
-                    #     index = 0
-                    
-                    # x = file.seek(index)
-                    # print(x)
-                    piece = file.read(piece_size)
-                    
-        if not check_sum_piece(
-            piece, torrent_file["metaInfo"]["pieces"], piece_index
-        ):
-            recv_socket.sendall(str("False").encode("utf-8"))
-        recv_socket.sendall(piece.encode("utf-8"))
+                recv_socket.sendall(piece)
 
     # -------------------------------------------#
 
