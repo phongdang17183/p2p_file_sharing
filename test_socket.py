@@ -104,3 +104,11 @@ def contruct_map_for_download(data):
 
 magnet_text = open(os.path.join("./Torrent", "text4.json"), "r").read()
 print(magnet_text)
+
+{
+    0: [["10.20.1.83", "1000"]],
+    1: [["10.20.1.83", "1000"]],
+    2: [["10.20.1.83", "1000"]],
+    3: [["10.20.1.83", "1000"]],
+    4: [["10.20.1.83", "1000"]],
+}
