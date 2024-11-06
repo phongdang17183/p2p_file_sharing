@@ -37,6 +37,7 @@ class Peer:
         message = "STATUS " +  data_torrent['magnetText']
         peer_socket.send(message.encode())
         res = peer_socket.recv(1024000).decode("uft-8")
+        # print(res)
         with lock:
             status.append(res)
         peer_socket.close()
@@ -66,18 +67,19 @@ class Peer:
         for thread in threadsStatus:
             thread.join()
         
-        piece_count = 0
-        # Tao thread de download cac piece cua file
-        for peer in peerList:
-            thread = Thread(target=self.download_pieces_from_peer, args=(peer, piece_count, data_torrent))
-            threadsPiece.append(thread)
-            thread.start()
-            piece_count += 1
+        print(status)
+        # piece_count = 0
+        # # Tao thread de download cac piece cua file
+        # for peer in peerList:
+        #     thread = Thread(target=self.download_pieces_from_peer, args=(peer, piece_count, data_torrent))
+        #     threadsPiece.append(thread)
+        #     thread.start()
+        #     piece_count += 1
         
-        for thread in threadsPiece:
-            thread.join()
+        # for thread in threadsPiece:
+        #     thread.join()
         
-        merge_temp_files("ouput.txt", data_torrent['metaInfo']['name'])
+        # merge_temp_files("ouput.txt", data_torrent['metaInfo']['name'])
         
     def download(self, magnet_text):
         """Handle download"""
@@ -101,12 +103,14 @@ class Peer:
     
     #-------------PEER LISTENING INTERACTION------------#
     
-    def handle_incoming_connection(self, recv_socket, src_addr):
-        """
-        Handle a new connection and pass the message to the appropriate function (for peer connect peer ?!).
-        include PING
-        """
-        print("handle_incoming_connection")
+    def handle_status(self, recv_socket: socket.socket, src_addr, magnetText):
+        """Handle status"""
+        filename = self.magnet_text_list[magnetText]
+        with open("./Torrent/" + filename, "r") as file:
+            torrent_file = file.read()
+        status = check_file(filename, torrent_file)
+
+        send_socket = recv_socket.sendall(str(status).encode("utf-8"))
 
     def listen(self):
         """
@@ -121,10 +125,10 @@ class Peer:
         while True:
             try:
                 recv_socket, src_addr = self.listen_socket.accept()
-                new_thread = Thread(
-                    target=self.handle_incoming_connection, args=(recv_socket, src_addr)
-                )
-                new_thread.start()
+                message = recv_socket.recv(1024000).decode("utf-8")
+                if message.startswith("STATUS"):
+                    self.handle_status(recv_socket, src_addr, message[7:])
+
             except OSError:
                 break
 

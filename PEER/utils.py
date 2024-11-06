@@ -121,6 +121,22 @@ def check_sum_piece(data, listPiece,  piece_count):
     else:
         return False
     
+def check_file(filename, torrent_file):
+    status = []
+    path = os.path.dirname(__file__)
+    fullpath = os.path.join(path, "MyFolder", filename)
+    with open(fullpath, "rb") as file:
+        while True:
+            index = 0
+            piece = file.read(torrent_file["metaInfo"]["piece_size"])
+            if not piece:
+                break
+            status.append(
+                check_sum_piece(piece, torrent_file["metaInfo"]["pieces"], index)
+            )
+    return status
+
+
 def merge_temp_files(output_file, filename):
     """Gộp tất cả các tệp .tmp trong thư mục temp thành một tệp duy nhất."""
     path = os.path.dirname(__file__)
