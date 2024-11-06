@@ -1,6 +1,7 @@
 import socket
 from utils import *
 import json
+import ast
 
 data = {
     "trackerIp": "192.168.244.43",
@@ -44,19 +45,62 @@ message6 = """UPLOAD {"trackerIp": "10.10.2.182", "magnetText": "5f7124f698afa29
 # meta = generate_Torrent("./MyFolder/text4")
 # print(meta)
 
-meta = {
-    "trackerIp": "192.168.160.31",
-    "magnetText": "6bc857ad5bdaae49a1603f7bed8ef3ac147e1019",
-    "metaInfo": {
-        "name": "text4",
-        "filesize": 20,
-        "piece_size": 4,
-        "pieces": [
-            "7010c9151c034f86e125e9530cd43a0b29e6f69b",
-            "970f03679c917e16d3b8b769e0178a286fdc80c2",
-            "5e37028beac0f0d8c6640021fc13643313ef3e3f",
-            "b93ee70d61dc32b2ca347d1f21e26987e6cd4bfe",
-            "eb53716965ad38d35df66c166eaf6d862ce05ba8",
-        ],
-    },
-}
+# data = [
+#     "[True, True, True, True, True] [[True, True, True, True, True'10.20.1.83', '2000']",
+#     "[True, True, True, False, True] ['10.20.1.83', '1000']",
+# ]
+
+
+# peers = []
+# for entry in data:
+#     # Split into piece availability and peer info
+#     piece_availability, peer_info = entry.split("] [")
+#     piece_availability = ast.literal_eval(piece_availability + "]")
+#     peer_info = ast.literal_eval("[" + peer_info)[0]
+#     peers.append((piece_availability, peer_info))
+
+
+# # Create a dictionary of pieces to the peers who have them
+# piece_to_peers = {
+#     i: [
+#         peer_info  # Store the actual peer IP and port tuple
+#         for availability_list, peer_info in peers
+#         if availability_list[i]  # Only include peer if they have the piece
+#     ]
+#     for i in range(
+#         len(peers[0][0])
+#     )  # Iterate through the number of pieces (based on the first peer's list)
+# }
+
+# print(piece_to_peers)
+
+
+data = [
+    "[True, True, True, True, True] ['10.20.1.83', '2000']",
+    "[True, True, True, False, True] ['10.20.1.83', '1000']",
+]
+
+
+def contruct_map_for_download(data):
+    peers = []
+    for entry in data:
+        # Split into piece availability and peer info
+        piece_availability, peer_info = entry.split("] [")
+
+        piece_availability = ast.literal_eval(piece_availability + "]")
+
+        peer_info = ast.literal_eval("[" + peer_info)
+        peers.append((piece_availability, peer_info))
+        print(piece_availability)
+        print(peer_info)
+
+    # Create a dictionary of pieces to the peers who have them
+    piece_to_peers = {
+        i: [peer_info for availability_list, peer_info in peers if availability_list[i]]
+        for i in range(len(peers[0][0]))
+    }
+    return piece_to_peers
+
+
+magnet_text = open(os.path.join("./Torrent", "text4.json"), "r").read()
+print(magnet_text)

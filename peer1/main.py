@@ -1,6 +1,11 @@
 import socket
 from apiclient import ClientSite
 from peer import Peer
+from threading import Thread
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def get_host_default():
@@ -22,7 +27,7 @@ def main():
     # host = input("Enter Host: ")
     # port = int(input("Enter Port (for listening): "))
     host = get_host_default()
-    port = 2000
+    port = int(os.getenv("PEERPORT"))
     print("hi {} {}".format(host, port))
 
     client = ClientSite(Peer(host, port))

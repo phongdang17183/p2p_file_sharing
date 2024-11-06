@@ -50,7 +50,8 @@ class Peer:
         print("Make connect to peer to get piece {} : {}".format(peer[0], peer[1]))
         message = "PIECE " + str(piece_count) + " " + data_torrent["magnet_text"]
         peer_socket.send(message.encode())
-        res = peer_socket.recv(1024000).decode("uft-8")
+        res = peer_socket.recv(1024000).decode("utf-8")
+
         create_temp_file(res, piece_count, data_torrent)
 
     def DownloadProcess(self, peerList, data_torrent):
@@ -75,8 +76,8 @@ class Peer:
         for thread in threadsStatus:
             thread.join()
 
-        print(list_status)
         piece_to_peer = contruct_piece_to_peers(list_status)
+        print(piece_to_peer)
 
         # get piece
         try:
@@ -147,14 +148,46 @@ class Peer:
         while self.running:
             try:
                 recv_socket, src_addr = self.listen_socket.accept()
+
                 print("connected from {}".format(src_addr))
                 message = recv_socket.recv(1024000).decode("utf-8")
-                print(message)
-                if message.startswith("STATUS"):
-                    self.handle_status(recv_socket, src_addr, message[7:])
+
+                handle_listen = Thread(
+                    target=self.handle_listen, args=(recv_socket, src_addr, message)
+                )
+                handle_listen.start()
 
             except Exception:
                 continue
+
+    def handle_listen(self, recv_socket: socket.socket, src_addr, message):
+        if message.startswith("STATUS"):
+            self.handle_status(recv_socket, src_addr, message[7:])
+        else:
+            self.handle_piece(recv_socket, src_addr, message[6:])
+
+    def handle_piece(self, recv_socket: socket.socket, src_addr, message):
+        """send piece"""
+
+        piece_index, magnet_text = message.split(" ")
+        filename = self.magnet_text_list[magnet_text].split(".")[0] + ".json"
+        piece_index = int(piece_index)
+
+        path = os.path.dirname(__file__)
+
+        torrent_file = open(os.path.join(path, "Torrent", filename), "r").read()
+        piece_size = torrent_file["metaInfo"]["piece_size"]
+
+        fullpath = os.path.join(path, "MyFolder", filename)
+        with open(fullpath, "r") as file:
+
+            file.seek(piece_index * piece_size)
+            piece = file.read(piece_size)
+            if not check_sum_piece(
+                piece, torrent_file["metaInfo"]["pieces"], piece_index
+            ):
+                raise Exception
+            recv_socket.sendall(piece.encode("utf-8"))
 
     # -------------------------------------------#
 
