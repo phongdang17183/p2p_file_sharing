@@ -8,6 +8,7 @@ import ast
 load_dotenv()
 trackerIP = os.getenv("TRACKERIP")
 trackerPort = int(os.getenv("TRACKERPORT"))
+pieceSize = int(os.getenv("PIECE_SIZE"))
 
 
 def get_host_default():
@@ -23,7 +24,7 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size=4):
+def make_attribute_torrent(filename, piece_size=pieceSize):
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
@@ -32,12 +33,12 @@ def make_attribute_torrent(filename, piece_size=4):
 
     size = os.stat(fullpath).st_size
 
-    with open(fullpath, "r") as f:
+    with open(fullpath, "rb") as f:
         while True:
             piece = f.read(piece_size)
             if not piece:
                 break
-            piece = piece.encode()
+            # piece = piece.encode()
             piece_hash = hashlib.sha1(piece).hexdigest()
             piece_hashes.append(piece_hash)
             hashinfo.update(piece_hash.encode())
@@ -103,27 +104,29 @@ def create_torrent_file(file_name, data_torrent):
     print(f"Tệp {file_name} đã được tạo thành công.")
 
 
-def create_temp_file(data, piece_count, torrent):
+def create_temp_file(data: bytes, piece_count, torrent):
     """tao temp file cho piece"""
     # check sum + create file tmp
-    if check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_count):
-
-        path = os.path.dirname(__file__)
-        file_name = torrent["metaInfo"]["name"] + "_" + str(piece_count) + ".tmp"
-        fullpath = os.path.join(path, "Temp", file_name)
-
-        with open(fullpath, "wb") as f:
-            f.write(data)
-        print(f"Tệp {file_name} đã được tạo thành công.")
-
-    else:
+    if not check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_count):
         print("data loi khi check sum.")
+        return False
+
+    path = os.path.dirname(__file__)
+    file_name = torrent["metaInfo"]["name"] + "_" + str(piece_count) + ".tmp"
+    fullpath = os.path.join(path, "Temp", file_name)
+
+    with open(fullpath, "wb") as f:
+        f.write(data)
+    print(f"Tệp {file_name} đã được tạo thành công.")
+    return True
 
 
-def check_sum_piece(data, listPiece, piece_count):
+def check_sum_piece(data: bytes, listPiece, piece_index):
     """check"""
-    hashPiece = hashlib.sha1(data.encode()).hexdigest()
-    if hashPiece == listPiece[piece_count]:
+    # hashPiece = hashlib.sha1(data.encode()).hexdigest()
+    hashPiece = hashlib.sha1(data).hexdigest()
+    print(hashPiece, piece_index)
+    if hashPiece == listPiece[piece_index]:
         return True
     else:
         return False
@@ -135,7 +138,7 @@ def check_file(filename, torrent_file):
     filename = torrent_file["metaInfo"]["name"]
     fullpath = os.path.join(path, "MyFolder", torrent_file["metaInfo"]["name"])
     index = 0
-    with open(fullpath, "r") as file:
+    with open(fullpath, "rb") as file:
         while True:
             piece = file.read(torrent_file["metaInfo"]["piece_size"])
             # print(piece)
@@ -180,7 +183,7 @@ def contruct_piece_to_peers(data: list):
         # Split into piece availability and peer info
         piece_availability, peer_info = entry.split("] [")
         piece_availability = ast.literal_eval(piece_availability + "]")
-        peer_info = ast.literal_eval("[" + peer_info)[0]
+        peer_info = ast.literal_eval("[" + peer_info)
         peers.append((piece_availability, peer_info))
 
     # Create a dictionary of pieces to the peers who have them
