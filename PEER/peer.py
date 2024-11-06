@@ -18,30 +18,40 @@ class Peer:
         
         self.__thread: dict[str, Thread] = {}
         self.__thread["listen"] = Thread(target=self.listen, args=())
-        self.__thread["connectToPeer"] = Thread(target=self.PeerProcess, args=(magnetText))
+        # self.__thread["connectToPeer"] = Thread(target=self.ThreadDownload, args=(magnetText))
     
     #---------PEER CONNECTION INTERACTION-------------#
     
-    def DownloadProcess(self):
-        """Hanlde download process"""
+    def DownloadProcess(self, peerList, magnet_text):
+        """Handle download process for each peer in the peerList"""
+        threads = []
+    
+        # Tạo thread cho mỗi peer
+        for peer in peerList:
+            thread = Thread(target=self.download_status_from_peer, args=(peer, magnet_text))
+            threads.append(thread)
+            thread.start()
         
-
+        # Chờ tất cả các thread hoàn thành
+        for thread in threads:
+            thread.join()
+        
+        print("Tất cả các peer đã hoàn thành quá trình tải xuống.")
+        
+    def download_status_from_peer(self, peer, magnet_text):
+        """Download the status"""
+        
+        
     def download(self, magnet_text):
         """Handle download"""
-        tracker_socket = self.make_connection_to_tracker()
-        print(f"Connected to tracker for download torrent {trackerIP}:{trackerPort}")
-        
-        message = "DOWNLOAD " + magnet_text 
-        print(message)
-        tracker_socket.send(message.encode())
-        
-        res = tracker_socket.recv(1024).decode("utf-8")
-        PeerListForDownloadFile = ast.literal_eval(res)
-        tracker_socket.close()
-        
+        data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
+        print(data_torrent)
+        print(peer_list)
+        print("Your download is being process, enter 6 to see detail")
         downloadThread = Thread(target=self.DownloadProcess, args=(PeerListForDownloadFile, magnet_text))
         downloadThread.start()
         downloadThread.join()
+        
     #-------------------------------------------------#      
     
     
@@ -141,6 +151,20 @@ class Peer:
         tracker_socket.close()
         print("Exit success")
         
+    def download_torrent_from_tracker(self, magnet_text):
+        tracker_socket = self.make_connection_to_tracker()
+        print(f"Connected to tracker for download torrent {trackerIP}:{trackerPort}")
+        
+        message = "DOWNLOAD " + magnet_text 
+        print(message)
+        tracker_socket.send(message.encode())
+        
+        #  hanlde respond from tracker
+        res = tracker_socket.recv(1024).decode("utf-8")
+        data_torrent = json.loads(res)['torrent_file']
+        data_list = json.loads(res)['peer_list']
+        tracker_socket.close()
+        return data_torrent, data_list
     #-------------------------------------------#
         
         
