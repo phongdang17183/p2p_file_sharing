@@ -1,0 +1,17 @@
+{
+    "trackerIp": "10.10.2.182",
+    "magnetText": "a28b56007fede9fd6d0ac966f75683f15c43a132",
+    "metaInfo": {
+        "name": "text",
+        "filesize": 22,
+        "piece_size": 4,
+        "pieces": [
+            "776351ef196dbed5844a1140802b855498d7d81e",
+            "c4269587151954eb6574fde71423650831ffb111",
+            "19c96b9957f3491ac5881c52c163dfe4b481c3ff",
+            "2ed618ae9167374fef1859a846a389ccf4a08427",
+            "61dce8dc32a68b6793698881bfd9d244cf5dfc41",
+            "4452d71687b6bc2c9389c3349fdc17fbd73b833b"
+        ]
+    }
+}
