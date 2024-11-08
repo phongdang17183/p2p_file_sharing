@@ -8,7 +8,6 @@ import ast
 load_dotenv()
 trackerIP = os.getenv("TRACKERIP")
 trackerPort = int(os.getenv("TRACKERPORT"))
-pieceSize = int(os.getenv("PIECE_SIZE"))
 
 
 def get_host_default():
@@ -24,13 +23,15 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size=pieceSize):
+def make_attribute_torrent(filename, piece_size=2000):
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
     piece_hashes = []
     hashinfo = hashlib.sha1()
-
+    if not os.path.isfile(fullpath):
+        print("File is not exist")
+        raise Exception
     size = os.stat(fullpath).st_size
 
     with open(fullpath, "rb") as f:
@@ -47,8 +48,10 @@ def make_attribute_torrent(filename, piece_size=pieceSize):
 
 
 def generate_Torrent(filename):
-
-    magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)
+    try:
+        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)
+    except Exception:
+        return
     data = {
         "trackerIp": trackerIP,
         "magnetText": magnet_text,
@@ -97,7 +100,7 @@ def get_hashcode(fullpath, file_name):
 def create_torrent_file(file_name, data_torrent):
     """Tạo một tệp .json mới từ dữ liệu JSON."""
     path = os.path.dirname(__file__)
-    file_name += ".json"
+    # file_name += ".json"
     fullpath = os.path.join(path, "Torrent", file_name)
     with open(fullpath, "w") as json_file:
         json.dump(data_torrent, json_file, indent=4)
@@ -107,18 +110,21 @@ def create_torrent_file(file_name, data_torrent):
 def create_temp_file(data: bytes, piece_count, torrent):
     """tao temp file cho piece"""
     # check sum + create file tmp
-    if not check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_count):
+    if check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_count):
+
+        path = os.path.dirname(__file__)
+        file_name = torrent["metaInfo"]["name"] + "_" + str(piece_count) + ".tmp"
+        fullpath = os.path.join(path, "Temp", file_name)
+
+        with open(fullpath, "wb") as f:
+            f.write(data)
+        print(f"Tệp {file_name} đã được tạo thành công.")
+
+        return True
+
+    else:
         print("data loi khi check sum.")
         return False
-
-    path = os.path.dirname(__file__)
-    file_name = torrent["metaInfo"]["name"] + "_" + str(piece_count) + ".tmp"
-    fullpath = os.path.join(path, "Temp", file_name)
-
-    with open(fullpath, "wb") as f:
-        f.write(data)
-    print(f"Tệp {file_name} đã được tạo thành công.")
-    return True
 
 
 def check_sum_piece(data: bytes, listPiece, piece_index):
