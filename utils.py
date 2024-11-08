@@ -3,6 +3,7 @@ import hashlib
 import os
 from dotenv import load_dotenv
 import json
+import bencodepy
 import ast
 
 load_dotenv()
@@ -98,14 +99,14 @@ def get_hashcode(fullpath, file_name):
         print(f"Lỗi khi đọc tệp {file_name}: {e}")
 
 
-def create_torrent_file(file_name, data_torrent):
+def create_torrent_file(filename, data_torrent):
     """Tạo một tệp .json mới từ dữ liệu JSON."""
     path = os.path.dirname(__file__)
-    file_name = file_name.split(".")[0] + ".json"
-    fullpath = os.path.join(path, "Torrent", file_name)
+    filename = filename.split(".")[0] + ".json"
+    fullpath = os.path.join(path, "Torrent", filename)
     with open(fullpath, "w") as json_file:
         json.dump(data_torrent, json_file, indent=4)
-    print(f"Tệp {file_name} đã được tạo thành công.")
+    print(f"File {filename} create successfully .")
 
 
 def create_temp_file(data: bytes, piece_index, torrent):

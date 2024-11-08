@@ -1,6 +1,4 @@
 from peer import Peer
-import socket
-from threading import Thread
 
 
 class ClientSite:
@@ -12,7 +10,6 @@ class ClientSite:
     def start(self):
         """Start first connect to tracker"""
         self.peer.start()
-        # print('hello')
 
     def get_all_file(self):
         """get all file from tracker"""
@@ -34,5 +31,3 @@ class ClientSite:
     def exit(self, host, port):
         """exit app"""
         self.peer.exit(host, port)
-
-        # announce tracker to update peerlist

@@ -5,6 +5,7 @@ import certifi
 import socket
 from threading import Thread
 import json
+import bencodepy
 
 
 # Create a new client and connect to the server
@@ -63,14 +64,17 @@ class Tracker:
                     {"magnetText": magnet},
                     {"$addToSet": {"list_peer": address}},
                 )
-
-            else:
-                document = {"magnetText": magnet, "list_peer": [address]}
-                print(address)
-                self.files.insert_one(document)
+            # else:
+            #     document = {"magnetText": magnet, "list_peer": [address]}
+            #     print(address)
+            #     self.files.insert_one(document)
         print(f"recieve magnet {magnet_list} for {peer_addr}")
 
-        peer_socket.send(f"Updated successfully".encode("utf-8"))
+        peer_socket.send(
+            f"On the other hand, we denounce with righteous indignation and dislike men who are so beguiled and demoralized by the charms of pleasure of the moment, so blinded by desire, that they cannot foresee the pain and trouble that are bound to ensue; and equal blame belongs to those who fail in their duty through weakness of will, which is the same as saying through shrinking from toil and pain. These cases are perfectly simple and easy to distinguish. In a free hour, when our power of choice is untrammelled and when nothing prevents our being able to do what we like best, every pleasure is to be welcomed and every pain avoided. But in certain circumstances and owing to the claims of duty or the obligations of business it will frequently occur that pleasures have to be repudiated and annoyances accepted. The wise man therefore always holds in these matters to this principle of selection: he rejects pleasures to secure other greater pleasures, or else he endures pains to avoid worse pains".encode(
+                "utf-8"
+            )
+        )
 
     def get_all_files(self, peer_socket: socket.socket, peer_addr, message):
 
@@ -99,7 +103,10 @@ class Tracker:
             {"magnetText": data["magnetText"]}
         )
         if existing_document:
-            existing_document
+            self.files.update_one(
+                {"magnetText": data["magnetText"]},
+                {"$addToSet": {"list_peer": addr}},
+            )
             peer_socket.send(f"File already exists".encode("utf-8"))
             print("File already exists")
             return
@@ -137,7 +144,11 @@ class Tracker:
             "peer_list": peer_list,
         }
         message = json.dumps(data)
-        peer_socket.sendall(message.encode("utf-8"))
+        message = bencodepy.encode(data)
+        print(message)
+        peer_socket.sendall(message)
+
+        # peer_socket.sendall(message.encode("utf-8"))
 
         print(f"Download file {magnetText} for {peer_addr}".encode("utf-8"))
 

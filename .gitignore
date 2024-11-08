@@ -1,5 +1,2 @@
 .env
-metadata
-peer1
-peer2
 test_socket

@@ -1,27 +1,12 @@
 import socket
 from apiclient import ClientSite
 from peer import Peer
-from threading import Thread
-
-
-def get_host_default():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(("8.8.8.8", 1))
-        ip = s.getsockname()[0]
-    except Exception:
-        print("err when get host default")
-        return None
-    finally:
-        s.close()
-    return ip
+from utils import get_host_default
 
 
 def main():
     """Main function to run the client interface."""
     print("Welcome to the P2P File Sharing Client!")
-    # host = input("Enter Host: ")
-    # port = int(input("Enter Port (for listening): "))
     host = get_host_default()
     port = 1000
     print("hi {} {}".format(host, port))
