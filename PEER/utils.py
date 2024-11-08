@@ -4,11 +4,14 @@ import os
 from dotenv import load_dotenv
 import json
 import ast
+import bencode
+import bencodepy
 
 load_dotenv()
 trackerIP = os.getenv("TRACKERIP")
 trackerPort = int(os.getenv("TRACKERPORT"))
 pieceSize = int(os.getenv("PIECE_SIZE"))
+
 
 def get_host_default():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -23,13 +26,13 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size= pieceSize): #.txt
+def make_attribute_torrent(filename, piece_size=pieceSize):  # .txt
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
     piece_hashes = []
     hashinfo = hashlib.sha256()
-    if (not os.path.isfile(fullpath)):
+    if not os.path.isfile(fullpath):
         print("File is not exist")
         raise Exception
     size = os.stat(fullpath).st_size
@@ -49,9 +52,9 @@ def make_attribute_torrent(filename, piece_size= pieceSize): #.txt
 
 def generate_Torrent(filename):
     try:
-        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename) #.txt
+        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)  # .txt
     except Exception:
-        return 
+        return
     data = {
         "trackerIp": trackerIP,
         "magnetText": magnet_text,
@@ -107,19 +110,19 @@ def create_torrent_file(file_name, data_torrent):
     print(f"Tệp {file_name} đã được tạo thành công.")
 
 
-def create_temp_file(data: bytes, piece_count, torrent):
+def create_temp_file(data: bytes, piece_index, torrent):
     """tao temp file cho piece"""
     # check sum + create file tmp
-    if check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_count):
+    if check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_index):
 
         path = os.path.dirname(__file__)
-        file_name = torrent["metaInfo"]["name"] + "_" + str(piece_count) + ".tmp"
+        file_name = torrent["metaInfo"]["name"] + "_" + str(piece_index) + ".tmp"
         fullpath = os.path.join(path, "Temp", file_name)
 
         with open(fullpath, "wb") as f:
             f.write(data)
         print(f"Tệp {file_name}.tmp đã được tạo thành công.")
-        
+
         return True
 
     else:
