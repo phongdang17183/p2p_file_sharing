@@ -8,7 +8,7 @@ import ast
 load_dotenv()
 trackerIP = os.getenv("TRACKERIP")
 trackerPort = int(os.getenv("TRACKERPORT"))
-
+pieceSize = int(os.getenv("PIECE_SIZE"))
 
 def get_host_default():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -23,7 +23,7 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size= 2000): #.txt
+def make_attribute_torrent(filename, piece_size= pieceSize): #.txt
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 

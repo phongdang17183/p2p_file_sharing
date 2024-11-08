@@ -102,7 +102,7 @@ class Peer:
         try:
             while True:
                 for piece_index in piece_to_peer:
-                    if not (downloaded_status[piece_index]):
+                    if (downloaded_status[piece_index] == False):
                         random.Random.shuffle(piece_to_peer[piece_index])
                         print(piece_to_peer[piece_index])
                         thread = Thread(
@@ -126,7 +126,7 @@ class Peer:
         name = data_torrent['metaInfo']['name']
         merge_temp_files(name, data_torrent["metaInfo"]["name"])
         print("Download complete")
-            
+
 
     def download(self, magnet_text):
         """Handle download"""      
@@ -247,6 +247,7 @@ class Peer:
 
     def start(self):
         """start server listen thread"""
+        print(trackerIP, trackerPort)
         self.send_torrent_hashcodes(trackerIP, trackerPort)
         listen_thread = Thread(target=self.listen, args=())
         listen_thread.start()
@@ -350,6 +351,7 @@ class Peer:
             self.running = False
             print("Exit success")
         except Exception as e:
+            self.running = False
             print("something when wrong when exit")
 
     def download_torrent_from_tracker(self, magnet_text):
