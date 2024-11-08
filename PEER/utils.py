@@ -23,7 +23,7 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size= 2000):
+def make_attribute_torrent(filename, piece_size= 2000): #.txt
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
@@ -49,7 +49,7 @@ def make_attribute_torrent(filename, piece_size= 2000):
 
 def generate_Torrent(filename):
     try:
-        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)
+        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename) #.txt
     except Exception:
         return 
     data = {
@@ -100,7 +100,7 @@ def get_hashcode(fullpath, file_name):
 def create_torrent_file(file_name, data_torrent):
     """Tạo một tệp .json mới từ dữ liệu JSON."""
     path = os.path.dirname(__file__)
-    file_name += ".json"
+    file_name = file_name.split(".")[0] + ".json"
     fullpath = os.path.join(path, "Torrent", file_name)
     with open(fullpath, "w") as json_file:
         json.dump(data_torrent, json_file, indent=4)
@@ -138,11 +138,11 @@ def check_sum_piece(data: bytes, listPiece, piece_index):
         return False
 
 
-def check_file(filename, torrent_file):
+def check_file(torrent_file):
     status = []
     path = os.path.dirname(__file__)
     filename = torrent_file["metaInfo"]["name"]
-    fullpath = os.path.join(path, "MyFolder", torrent_file["metaInfo"]["name"])
+    fullpath = os.path.join(path, "MyFolder", filename)
     index = 0
     with open(fullpath, "rb") as file:
         while True:

@@ -7,7 +7,6 @@ from threading import Thread
 import json
 
 
-
 # Create a new client and connect to the server
 DATABASE_URL = "mongodb+srv://tranchinhbach:tranchinhbach@co3001.qkb5z.mongodb.net/?retryWrites=true&w=majority&appName=CO3001/"
 
@@ -64,6 +63,7 @@ class Tracker:
                     {"magnetText": magnet},
                     {"$addToSet": {"list_peer": address}},
                 )
+
             else:
                 document = {"magnetText": magnet, "list_peer": [address]}
                 print(address)
@@ -95,34 +95,22 @@ class Tracker:
         addr = (data_list[0], data_list[1])
 
         data = json.loads(data_list[2])
-
-        existing_document_torrent = self.torrent_file.find_one(
+        existing_document = self.torrent_file.find_one(
             {"magnetText": data["magnetText"]}
         )
-        if existing_document_torrent:
+        if existing_document:
+            existing_document
             peer_socket.send(f"File already exists".encode("utf-8"))
             print("File already exists")
             return
 
         self.torrent_file.insert_one(data)
-
-        existing_document_files = self.files.find_one(
-            {"magnetText": data["magnetText"]}
+        self.files.insert_one(
+            {
+                "magnetText": data["magnetText"],
+                "list_peer": [addr],
+            },
         )
-
-        if existing_document_files:
-            self.files.update_one(
-                {"magnetText": data["magnetText"]},
-                {"$addToSet": {"list_peer": addr}},
-            )
-
-        else:
-            self.files.insert_one(
-                {
-                    "magnetText": data["magnetText"],
-                    "list_peer": [addr],
-                },
-            )
 
         print(f"upload file for {peer_addr}")
         peer_socket.send(f"Uploaded successfully".encode("utf-8"))
@@ -135,8 +123,6 @@ class Tracker:
         magnetText = data_list[2]
 
         torrent_file = self.torrent_file.find_one({"magnetText": magnetText})
-        if not torrent_file:
-            return
         print(torrent_file)
         torrent_file.pop("_id")
 

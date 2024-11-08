@@ -101,15 +101,16 @@ class Peer:
         # get piece
         try:
             while True:
-                if not (downloaded_status[piece_index]):
-                    for piece_index in piece_to_peer:
-                            print(random.Random.shuffle(piece_to_peer[piece_index]))
-                            thread = Thread(
-                                target=self.download_pieces_from_peer,
-                                args=(random.Random.shuffle(piece_to_peer[piece_index]), piece_index, data_torrent, downloaded_status),
-                            )
-                            threadsPiece.append(thread)
-                            thread.start()
+                for piece_index in piece_to_peer:
+                    if not (downloaded_status[piece_index]):
+                        random.Random.shuffle(piece_to_peer[piece_index])
+                        print(piece_to_peer[piece_index])
+                        thread = Thread(
+                            target=self.download_pieces_from_peer,
+                            args=(piece_to_peer[piece_index], piece_index, data_torrent, downloaded_status),
+                        )
+                        threadsPiece.append(thread)
+                        thread.start()
                             
                 for thread in threadsPiece:
                     thread.join()
@@ -135,8 +136,9 @@ class Peer:
             return
 
         if data_torrent["magnetText"] not in self.magnet_text_list:
-            filename = data_torrent["metaInfo"]["name"].split('.')[0]
-            self.magnet_text_list[data_torrent["magnetText"]] = filename
+            filename = data_torrent["metaInfo"]["name"]
+            filenameTorrent = filename.split(".")[0] + ".json"
+            self.magnet_text_list[data_torrent["magnetText"]] = filenameTorrent
             create_torrent_file(filename, data_torrent)
         else:
             print("You already have torrent")
@@ -160,14 +162,14 @@ class Peer:
 
     def handle_status(self, recv_socket: socket.socket, src_addr, magnetText):
         """Handle status"""
-        filename = self.magnet_text_list[magnetText]
-        # filename = filename.split(".")[0] + ".json"
+        filenameTorrent = self.magnet_text_list[magnetText]
+
         path = os.path.dirname(__file__)
-        fullpath = os.path.join(path, "Torrent", filename)
+        fullpath = os.path.join(path, "Torrent", filenameTorrent)
         try:
             with open(fullpath, "r") as file:
                 torrent_file = file.read()
-                status = check_file(filename, json.loads(torrent_file))
+                status = check_file( json.loads(torrent_file))
                 print(status)
                 send_socket = recv_socket.sendall(str(status).encode("utf-8"))
                 print(send_socket)
@@ -296,7 +298,7 @@ class Peer:
             print("something when wrong when get all file: {}".format(e))
             return []
 
-    def upload_Torrent(self, filename):
+    def upload_Torrent(self, filename): #.txt
         """upload torrent for tracker"""
         try:
             tracker_socket = self.make_connection_to_tracker()
@@ -319,12 +321,12 @@ class Peer:
             res = tracker_socket.recv(1024).decode("utf-8")
             if res != "File already exists":
                 create_torrent_file(
-                    filename.split(".")[0], json.loads(data)
+                    filename, json.loads(data)
                 )
                 
             magnet_text = json.loads(data)["magnetText"]
-            filename = filename.split(".")[0] + ".json"
-            self.magnet_text_list[magnet_text] = filename
+            filenameTorrent = filename.split(".")[0] + ".json"
+            self.magnet_text_list[magnet_text] = filenameTorrent
             print(self.magnet_text_list)
             tracker_socket.close()
         except Exception as e:
