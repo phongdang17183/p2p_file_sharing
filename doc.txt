@@ -140,3 +140,6 @@ peer job
 test truong hop file chi co tren local ko co tren tracker
 
 ["[True, True, True, True, True] ['10.20.1.83', '2000']", "[True, True, True, True, True] ['10.20.1.83', '1000']"]
+
+nho sua random cho python 3.12
+txt, png

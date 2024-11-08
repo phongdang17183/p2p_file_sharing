@@ -8,6 +8,7 @@ import ast
 load_dotenv()
 trackerIP = os.getenv("TRACKERIP")
 trackerPort = int(os.getenv("TRACKERPORT"))
+pieceSize = int(os.getenv("PIECE_SIZE"))
 
 
 def get_host_default():
@@ -23,12 +24,12 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size=2000):
+def make_attribute_torrent(filename, piece_size=pieceSize):  # .txt
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
     piece_hashes = []
-    hashinfo = hashlib.sha1()
+    hashinfo = hashlib.sha256()
     if not os.path.isfile(fullpath):
         print("File is not exist")
         raise Exception
@@ -40,7 +41,7 @@ def make_attribute_torrent(filename, piece_size=2000):
             if not piece:
                 break
             # piece = piece.encode()
-            piece_hash = hashlib.sha1(piece).hexdigest()
+            piece_hash = hashlib.sha256(piece).hexdigest()
             piece_hashes.append(piece_hash)
             hashinfo.update(piece_hash.encode())
 
@@ -49,7 +50,7 @@ def make_attribute_torrent(filename, piece_size=2000):
 
 def generate_Torrent(filename):
     try:
-        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)
+        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)  # .txt
     except Exception:
         return
     data = {
@@ -100,25 +101,25 @@ def get_hashcode(fullpath, file_name):
 def create_torrent_file(file_name, data_torrent):
     """Tạo một tệp .json mới từ dữ liệu JSON."""
     path = os.path.dirname(__file__)
-    # file_name += ".json"
+    file_name = file_name.split(".")[0] + ".json"
     fullpath = os.path.join(path, "Torrent", file_name)
     with open(fullpath, "w") as json_file:
         json.dump(data_torrent, json_file, indent=4)
     print(f"Tệp {file_name} đã được tạo thành công.")
 
 
-def create_temp_file(data: bytes, piece_count, torrent):
+def create_temp_file(data: bytes, piece_index, torrent):
     """tao temp file cho piece"""
     # check sum + create file tmp
-    if check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_count):
+    if check_sum_piece(data, torrent["metaInfo"]["pieces"], piece_index):
 
         path = os.path.dirname(__file__)
-        file_name = torrent["metaInfo"]["name"] + "_" + str(piece_count) + ".tmp"
+        file_name = torrent["metaInfo"]["name"] + "_" + str(piece_index) + ".tmp"
         fullpath = os.path.join(path, "Temp", file_name)
 
         with open(fullpath, "wb") as f:
             f.write(data)
-        print(f"Tệp {file_name} đã được tạo thành công.")
+        print(f"Tệp {file_name}.tmp đã được tạo thành công.")
 
         return True
 
@@ -130,7 +131,7 @@ def create_temp_file(data: bytes, piece_count, torrent):
 def check_sum_piece(data: bytes, listPiece, piece_index):
     """check"""
     # hashPiece = hashlib.sha1(data.encode()).hexdigest()
-    hashPiece = hashlib.sha1(data).hexdigest()
+    hashPiece = hashlib.sha256(data).hexdigest()
     print(hashPiece, piece_index)
     if hashPiece == listPiece[piece_index]:
         return True
@@ -138,11 +139,11 @@ def check_sum_piece(data: bytes, listPiece, piece_index):
         return False
 
 
-def check_file(filename, torrent_file):
+def check_file(torrent_file):
     status = []
     path = os.path.dirname(__file__)
     filename = torrent_file["metaInfo"]["name"]
-    fullpath = os.path.join(path, "MyFolder", torrent_file["metaInfo"]["name"])
+    fullpath = os.path.join(path, "MyFolder", filename)
     index = 0
     with open(fullpath, "rb") as file:
         while True:
