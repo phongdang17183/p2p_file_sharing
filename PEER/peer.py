@@ -54,7 +54,8 @@ class Peer:
             message = "PIECE " + str(piece_count) + " " + data_torrent["magnetText"]
             peer_socket.send(message.encode())
             res = peer_socket.recv(1024000)
-
+            peer_socket.close()
+            
             if create_temp_file(res, piece_count, data_torrent):
                 break
 
@@ -111,12 +112,15 @@ class Peer:
 
     def download(self, magnet_text):
         """Handle download"""
-
-        data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
+        try:
+            data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
+        except Exception:
+            print("Something wrong when download Torrent")
+            return
 
         
         if data_torrent["magnetText"] not in self.magnet_text_list:
-            filename = data_torrent["metaInfo"]['name'].split('.') + ".json"
+            filename = data_torrent["metaInfo"]["name"].split('.')[0] + ".json"
             self.magnet_text_list[data_torrent["magnetText"]] = filename
             create_torrent_file(filename, data_torrent)
         else:
@@ -271,24 +275,27 @@ class Peer:
         """upload torrent for tracker"""
         tracker_socket = self.make_connection_to_tracker()
         print("connected to upload file")
-
+        data = generate_Torrent(filename)
+        if data is None :
+            return
+        
         message = (
             "UPLOAD "
             + self.peer_host
             + " "
             + str(self.peer_port)
             + " "
-            + generate_Torrent(filename)
+            + data
         )
         print(message)
         tracker_socket.send(message.encode())
         res = tracker_socket.recv(1024).decode("utf-8")
         if res != "File already exists":
             create_torrent_file(
-                filename.split(".")[0], json.loads(generate_Torrent(filename))
+                filename.split(".")[0], json.loads(data)
             )
 
-        magnet_text = json.loads(generate_Torrent(filename))["magnetText"]
+        magnet_text = json.loads(data)["magnetText"]
         filename = filename.split(".")[0] + ".json"
         self.magnet_text_list[magnet_text] = filename
         print(self.magnet_text_list)

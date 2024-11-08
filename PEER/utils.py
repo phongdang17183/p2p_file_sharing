@@ -29,7 +29,9 @@ def make_attribute_torrent(filename, piece_size= 2000):
 
     piece_hashes = []
     hashinfo = hashlib.sha1()
-
+    if (not os.path.isfile(fullpath)):
+        print("File is not exist")
+        raise Exception
     size = os.stat(fullpath).st_size
 
     with open(fullpath, "rb") as f:
@@ -46,8 +48,10 @@ def make_attribute_torrent(filename, piece_size= 2000):
 
 
 def generate_Torrent(filename):
-
-    magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)
+    try:
+        magnet_text, pieces, size, piece_size = make_attribute_torrent(filename)
+    except Exception:
+        return 
     data = {
         "trackerIp": trackerIP,
         "magnetText": magnet_text,
