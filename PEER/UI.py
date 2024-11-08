@@ -126,12 +126,7 @@ class App(tk.Tk):
 
     def download_file(self, file_name):
         # Hàm xử lý khi nhấn nút Download của từng tệp
-        download_path = os.path.join(self.download_path, file_name)
-        # Mã để tải về file (giả lập)
-        with open(download_path, 'w') as f:
-            f.write("Đây là nội dung của file " + file_name)
-        messagebox.showinfo("Download", f"Tệp {file_name} đã được tải về {self.download_path}")
-
+        print("dang download")
     def open_download_folder(self):
         # Hàm mở thư mục Download trong hệ thống
         try:

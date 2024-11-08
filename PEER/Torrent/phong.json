@@ -1,0 +1,12 @@
+{
+    "trackerIp": "10.20.2.108",
+    "magnetText": "d7ccf6977deece840411f62a97eb67b78edc997c",
+    "metaInfo": {
+        "name": "phong.txt",
+        "filesize": 58,
+        "piece_size": 5000,
+        "pieces": [
+            "06403dc9f50350e95559b0edf8b2228ddd4d174e"
+        ]
+    }
+}

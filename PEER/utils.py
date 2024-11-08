@@ -23,7 +23,7 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size= 8):
+def make_attribute_torrent(filename, piece_size= 2000):
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
@@ -96,7 +96,7 @@ def get_hashcode(fullpath, file_name):
 def create_torrent_file(file_name, data_torrent):
     """Tạo một tệp .json mới từ dữ liệu JSON."""
     path = os.path.dirname(__file__)
-    file_name += ".json"
+    # file_name += ".json"
     fullpath = os.path.join(path, "Torrent", file_name)
     with open(fullpath, "w") as json_file:
         json.dump(data_torrent, json_file, indent=4)
@@ -115,9 +115,12 @@ def create_temp_file(data: bytes, piece_count, torrent):
         with open(fullpath, "wb") as f:
             f.write(data)
         print(f"Tệp {file_name} đã được tạo thành công.")
+        
+        return True
 
     else:
         print("data loi khi check sum.")
+        return False
 
 
 def check_sum_piece(data: bytes, listPiece, piece_index):

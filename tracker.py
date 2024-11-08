@@ -1,13 +1,11 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.collection import Collection
+# from utils import *
 import certifi
 import socket
 from threading import Thread
 import json
 
-
-# Create a new client and connect to the server
-DATABASE_URL = "mongodb+srv://tranchinhbach:tranchinhbach@co3001.qkb5z.mongodb.net/?retryWrites=true&w=majority&appName=CO3001/"
 def get_host_default():  
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -19,6 +17,9 @@ def get_host_default():
     finally:
         s.close()
     return ip
+# Create a new client and connect to the server
+DATABASE_URL = "mongodb+srv://tranchinhbach:tranchinhbach@co3001.qkb5z.mongodb.net/?retryWrites=true&w=majority&appName=CO3001/"
+
 
 class Tracker:
     def __init__(self, port):
@@ -75,6 +76,7 @@ class Tracker:
 
             else:
                 document = {"magnetText": magnet, "list_peer": [address]}
+                print(address)
                 self.files.insert_one(document)
         print(f"recieve magnet {magnet_list} for {peer_addr}")
 
@@ -98,7 +100,11 @@ class Tracker:
 
     def upload_file(self, peer_socket: socket.socket, peer_addr, message):
 
-        data = json.loads(message)
+        data_list = message.split(" ", 2)
+
+        addr = (data_list[0], data_list[1])
+
+        data = json.loads(data_list[2])
         existing_document = self.torrent_file.find_one(
             {"magnetText": data["magnetText"]}
         )
@@ -106,22 +112,47 @@ class Tracker:
             peer_socket.send(f"File already exists".encode("utf-8"))
             print("File already exists")
             return
+
         self.torrent_file.insert_one(data)
+        self.files.insert_one(
+            {
+                "magnetText": data["magnetText"],
+                "list_peer": [addr],
+            },
+        )
 
         print(f"upload file for {peer_addr}")
-        peer_socket.send(f"successfully".encode("utf-8"))
+        peer_socket.send(f"Uploaded successfully".encode("utf-8"))
 
     def peer_download(self, peer_socket: socket.socket, peer_addr, message):
 
-        data = json.loads(message)
-        torrent_file = self.torrent_file.find_one({"magnetText": data["magnetText"]})
-        peer_list = self.files.find_one({"magnetText": data["magnetText"]})["list_peer"]
+        data_list = message.split(" ", 2)
+        addr = [data_list[0], data_list[1]]
 
-        peer_socket.send(f"Download file {data} for {peer_addr}".encode("utf-8"))
+        magnetText = data_list[2]
+
+        torrent_file = self.torrent_file.find_one({"magnetText": magnetText})
+        print(torrent_file)
+        torrent_file.pop("_id")
+
+        peer_list = self.files.find_one({"magnetText": magnetText})["list_peer"]
+
+        peer_list = [peer for peer in peer_list if peer != addr]
+
+        print(peer_list)
+
+        data = {
+            "torrent_file": torrent_file,
+            "peer_list": peer_list,
+        }
+        message = json.dumps(data)
+        peer_socket.sendall(message.encode("utf-8"))
+
+        print(f"Download file {magnetText} for {peer_addr}".encode("utf-8"))
 
     def handle_request(self, peer_socket: socket.socket, peer_addr):
         print(f"accept connect from {peer_addr}")
-        message = peer_socket.recv(1024).decode("utf-8")
+        message = peer_socket.recv(102400).decode("utf-8")
 
         if message == "FETCH ALL TORRENT":
             self.get_all_files(peer_socket, peer_addr, message)

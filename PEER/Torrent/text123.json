@@ -1,0 +1,15 @@
+{
+    "trackerIp": "192.168.2.21",
+    "magnetText": "01701be36e632f76a50e203db6ed56bcfba0bd92",
+    "metaInfo": {
+        "name": "text123.txt",
+        "filesize": 6572,
+        "piece_size": 2000,
+        "pieces": [
+            "3fe985cf381c29bf1d652a6211792145aec993fa",
+            "4e1bcc80c056cc82a3267e0db4727432ab66bedb",
+            "fb5f36e0bf73c93d5605001d08b50478f6797995",
+            "2dfb02a129cd30219a5ddfdfce7376d7a609df38"
+        ]
+    }
+}
