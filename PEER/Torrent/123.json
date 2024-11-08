@@ -1,0 +1,12 @@
+{
+    "trackerIp": "10.20.2.108",
+    "magnetText": "3d412769198e64ffd5fbb6ad9aeb72138acc95c8",
+    "metaInfo": {
+        "name": "123.txt",
+        "filesize": 25,
+        "piece_size": 2000,
+        "pieces": [
+            "143c1a728759371fa8c3e99dbaa10889948a6d7f"
+        ]
+    }
+}

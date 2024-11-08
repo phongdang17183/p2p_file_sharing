@@ -1,0 +1,15 @@
+{
+    "trackerIp": "10.10.1.142",
+    "magnetText": "87291868119c34927dd61a1d6d9f6e2d23962795",
+    "metaInfo": {
+        "name": "abcd.txt",
+        "filesize": 28,
+        "piece_size": 8,
+        "pieces": [
+            "8c1c05c5ca87cdb455e2269599bdc542725c1563",
+            "2c2bb914698522915183cf723fc8b3df6123f452",
+            "b003d719f15fe7e45852ab2a013665ec11bf3263",
+            "8c5f76b38e7669b4023069f564d568bdaf0f4d78"
+        ]
+    }
+}

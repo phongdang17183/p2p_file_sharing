@@ -120,7 +120,7 @@ class Peer:
             
             
         except Exception as e:
-            print("something when wrong in download process : {}".format(e))
+            print("something when wrong in download process".format(e))
             
         name = data_torrent['metaInfo']['name']
         merge_temp_files(name, data_torrent["metaInfo"]["name"])
