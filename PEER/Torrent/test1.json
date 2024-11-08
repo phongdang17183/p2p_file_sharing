@@ -1,0 +1,12 @@
+{
+    "trackerIp": "192.168.244.43",
+    "magnetText": "78add0558806ea2e11210784448976b0",
+    "metaInfo": {
+        "name": "test1.txt",
+        "filesize": 20,
+        "piece_size": 25000,
+        "pieces": [
+            "4d77f64b3699329e72585cea1805c444"
+        ]
+    }
+}

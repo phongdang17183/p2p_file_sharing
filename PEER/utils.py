@@ -28,7 +28,7 @@ def make_attribute_torrent(filename, piece_size= pieceSize): #.txt
     fullpath = os.path.join(path, "MyFolder", filename)
 
     piece_hashes = []
-    hashinfo = hashlib.sha1()
+    hashinfo = hashlib.sha256()
     if (not os.path.isfile(fullpath)):
         print("File is not exist")
         raise Exception
@@ -40,7 +40,7 @@ def make_attribute_torrent(filename, piece_size= pieceSize): #.txt
             if not piece:
                 break
             # piece = piece.encode()
-            piece_hash = hashlib.sha1(piece).hexdigest()
+            piece_hash = hashlib.sha256(piece).hexdigest()
             piece_hashes.append(piece_hash)
             hashinfo.update(piece_hash.encode())
 
@@ -130,7 +130,7 @@ def create_temp_file(data: bytes, piece_count, torrent):
 def check_sum_piece(data: bytes, listPiece, piece_index):
     """check"""
     # hashPiece = hashlib.sha1(data.encode()).hexdigest()
-    hashPiece = hashlib.sha1(data).hexdigest()
+    hashPiece = hashlib.sha256(data).hexdigest()
     print(hashPiece, piece_index)
     if hashPiece == listPiece[piece_index]:
         return True

@@ -1,0 +1,31 @@
+{
+    "trackerIp": "192.168.244.43",
+    "magnetText": "51bcefb5dc0ba7daca320b91feffc81634571c1edd13c4e74fed8b2b1dbacbd4",
+    "metaInfo": {
+        "name": "123.mp4",
+        "filesize": 491210,
+        "piece_size": 25000,
+        "pieces": [
+            "f59940aaefd594e92ace174e83dab94da6f41507a669dfa731480aa0522c04b4",
+            "4f66d1778e993fdfe66c9f5319b4f68daf3f08be3a651be55d26fc74cef03810",
+            "35158f27152ae906078173637611a63a250c8ed04c63ceda65f27e5bd5fdc2b9",
+            "75ef01fc652ce2051cc8507d70292c857cc5c3a665f5290cb8591a3b03b68cd8",
+            "740dfb2a6cc7abf9bda2677389e5eb4ca95401534bd12abad6dc62e578d59251",
+            "6d653ff3415b7578ba3a4e4dd4e40cfe77849d60bd85999b4e1a3600efb3419c",
+            "1c0b4ae78e7c3525b6282c816e6e4ea0d32d062fa797e4cbc7ecf2d9dc2ce4de",
+            "8cdb9c8adb9275c4c9041f5b013173e43dbdaa5357957b98c9c07fe793019e98",
+            "1a7410eccafa6b1061fc936d041c7dfffa28acadd828765e1ee820849df0165a",
+            "2cd24a9426ae7ccb37c2334cb5118236c8fcce480430d09a6aebd9e0345996f0",
+            "1054f156459986ca845dd4192eaeb29e1f75bb6f7e495f088d641b84faf4d338",
+            "50593ae19c69411f2a60112fc5a22c8ce9e3963bf95a060b57b094cc07c93dd8",
+            "ab8ac145e9d17c71167fb8ee0b4a491edf75d9707e6d2c192727c2b70f16724c",
+            "84ce1270977b8d96be336efe12ca9c6fbed3919462120363bc8670e81f256dd0",
+            "c97aa138932eb00f0c78144e4bc357fb0ac60d69e031082a61952c5673935fec",
+            "9efd7f9938bdf3d4b93cb2df6191f6523ca2857853a3fadf4d16815aded598e5",
+            "23e7b350b8bb03e3d40f79cd1b39b15e5210ba02e07c3758b0177baebd8f5fcc",
+            "1aab6b3b73b15ee1f169ccc6f82150f27dd2ee69e96bd91cdb8548d7ee1c810b",
+            "a71b212ae844a5a514a71fd0971fef20ee11c90a95063b93d203ea30256ffc2b",
+            "ec2f50552dde5ad107d8361f27cf341b84cfa2482b5ff17ad4a88a87674eab37"
+        ]
+    }
+}

@@ -86,25 +86,21 @@ class Peer:
 
         piece_to_peer = contruct_piece_to_peers(list_status)
         print(piece_to_peer)
-        # {0: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
-        #  1: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
-        #  2: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
-        #  3: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
-        #  4: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']], 
-        #  5: [['10.20.1.83', '22222'], ['10.20.1.83', '1000']]}
+        
         # {0: true, 
         #  1: fale }
         
         
         downloaded_status = [False] * len(piece_to_peer) 
-        timeout = time.time() + 10
+        # timeout = time.time() + 10
         # get piece
         try:
             
-            while time.time() < timeout:
+            # while time.time() < timeout:
+            while True:
                 for piece_index in piece_to_peer:
                     if (downloaded_status[piece_index] == False):
-                        random.Random.shuffle(piece_to_peer[piece_index])
+                        random.shuffle(piece_to_peer[piece_index])
                         print(piece_to_peer[piece_index])
                         thread = Thread(
                             target=self.download_pieces_from_peer,
@@ -185,7 +181,7 @@ class Peer:
         self.listen_socket.bind((self.peer_host, self.peer_port))
         print("Succes listening")
         print(self.listen_socket.getsockname())
-        self.listen_socket.listen(5)
+        self.listen_socket.listen(50)
         self.listen_socket.settimeout(10)
         while self.running:
             try:

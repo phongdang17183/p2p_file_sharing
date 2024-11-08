@@ -1,0 +1,12 @@
+{
+    "trackerIp": "192.168.244.43",
+    "magnetText": "fcd89adfb8b26debc5d14ee3e9b6f6c2b58a0cf4",
+    "metaInfo": {
+        "name": "k.txt",
+        "filesize": 26,
+        "piece_size": 70000,
+        "pieces": [
+            "62771617c92a6bd9b129f79eaad9b797394f1a8f"
+        ]
+    }
+}
