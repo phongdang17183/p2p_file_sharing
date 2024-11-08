@@ -7,7 +7,7 @@ import queue
 from dotenv import load_dotenv
 from utils import *
 import random
-
+import time
 
 
 class Peer:
@@ -97,10 +97,11 @@ class Peer:
         
         
         downloaded_status = [False] * len(piece_to_peer) 
-        
+        timeout = time.time() + 10
         # get piece
         try:
-            while True:
+            
+            while time.time() < timeout:
                 for piece_index in piece_to_peer:
                     if (downloaded_status[piece_index] == False):
                         random.Random.shuffle(piece_to_peer[piece_index])
@@ -172,7 +173,7 @@ class Peer:
                 status = check_file( json.loads(torrent_file))
                 print(status)
                 send_socket = recv_socket.sendall(str(status).encode("utf-8"))
-                print(send_socket)
+
         except Exception as e:
             print("something when wrong when handle status listen: {}".format(e))
 
@@ -209,9 +210,9 @@ class Peer:
 
     def handle_piece(self, recv_socket: socket.socket, src_addr, message):
         """send piece"""
-
+        print("--------piece dowload------")
         piece_index, magnet_text = message.split(" ")
-    
+
         filenameTorrent = self.magnet_text_list[magnet_text]
         
         

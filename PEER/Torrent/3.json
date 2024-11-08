@@ -1,0 +1,32 @@
+{
+    "trackerIp": "192.168.244.43",
+    "magnetText": "cb31c7372c0b3b8c6019b02b220ccb8ea9f9f983",
+    "metaInfo": {
+        "name": "3.jpg",
+        "filesize": 310300,
+        "piece_size": 15000,
+        "pieces": [
+            "18d8dbee97eb398f433d9be208e038b0e78410b0",
+            "6f7d871eb934c6ab65e037fcfcf060dfb0c90e2e",
+            "70527e73e32c356c21b71696919eb6174d8cb52f",
+            "d0a0b15e1be8a00bf2890acdc5a77ff61fae7dbf",
+            "8903e077ba14f1c9d98193d529fdccbeeb894652",
+            "f2be69b8a65b30a27be387a650100168af12b2bd",
+            "fefb6a7834428fb2c66d5106177497027039eae6",
+            "19e6094df87ac784afc1de31e26aa480b3729575",
+            "62671277552c0595f0c472382a0d9d069c562c26",
+            "51e315eb1f193cd2dd7325384e917df2d483a467",
+            "8ab5243a5cf221af78a40ffc0a9eeca478b53609",
+            "fa086ffa8fe44e2c55938b4c32a6a9ebed627411",
+            "a84c1c672fbab77d0a00e52c3f1569f2591afcf8",
+            "ca12aae227ece833329bcab761f3f029f60f52d1",
+            "8a87f243c6fa104b15d50fc9deb543ef76cee58b",
+            "9071c2fed4eb3c011a89a597665b1eefaed46926",
+            "737653c9a604f584a641cfffee04a9cd5f1036a3",
+            "d74668470510997c858798a7ac4c4b8826023eef",
+            "59d8ba975e086fbc121ff0bb32e3b8034448c91a",
+            "48da05d3a864b8c7d8b8686c3b2860c8f84e4067",
+            "dfbada7baced90a9a568c693fb2aefa293113339"
+        ]
+    }
+}
