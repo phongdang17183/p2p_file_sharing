@@ -132,8 +132,12 @@ class Peer:
     def download(self, magnet_text):
         """Handle download"""
         try:
-            data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
-        except Exception:
+            # data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
+            data_torrent, peer_list = self.download_torrent_from_tracker_api(magnet_text)
+            print(data_torrent)
+            print(peer_list)
+        except Exception as e:
+            print("something err download: {}".format(e))
             return
 
         if data_torrent["magnetText"] not in self.magnet_text_list:
@@ -423,9 +427,9 @@ class Peer:
             if data is None:
                 return
         
-            data = json.loads(data)
             url = "http://localhost:3000/tracker/upload"
 
+            data = json.loads(data)
             param = {
                 "peerIp": self.peer_host,
                 "peerPort": self.peer_port,
@@ -434,7 +438,7 @@ class Peer:
 
             response = requests.post(url, json=param)
             if(response.status_code != 409):
-                create_torrent_file(filename, json.loads(data))
+                create_torrent_file(filename, data)
                 
             magnet_text = data["magnetText"]
             filenameTorrent = filename.split(".")[0] + ".json"
@@ -450,4 +454,9 @@ class Peer:
             "magnetText": magnetText
         }
         response = requests.get(url, json=param)
-        print(response.json()["listPeer"][1]["peerIp"])
+       
+        data_torent = response.json()["torrent"]
+        peerlist = response.json()["listPeer"]
+
+        
+        return data_torent, peerlist

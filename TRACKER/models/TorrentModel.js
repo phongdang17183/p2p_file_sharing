@@ -7,7 +7,7 @@ const TorrentSchema = new mongoose.Schema({
         name: { type: String, required: true },
         filesize: { type: Number, required: true },
         piece_size: { type: Number, required: true },
-        pieces: [{ type: String, required: true }]
+        pieces: [{ type: String, required: true }, { _id: false }]
     }
 });
 

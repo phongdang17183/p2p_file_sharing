@@ -27,6 +27,7 @@ class ClientSite:
     def download(self, hashcode):
         """download with hashcode"""
         self.peer.download(hashcode)
+        # self.peer.de
     
     def upload(self, filename):
         """upload torrent"""

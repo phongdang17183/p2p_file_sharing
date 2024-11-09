@@ -60,12 +60,14 @@ def download_torrent_from_tracker_api(magnettext):
         "magnetText": magnettext
     }
     response = requests.get(url, json=param)
+    
     print(type(response.json()['listPeer']))
+    print(type(response.json()['torrent']))
     
     
     
 # start_api()
 # get_all_file_api()
 # exit_api()
-upload_api()
-# download_torrent_from_tracker_api("71c5f41076ce5d94666964d1c507b537d82f7c7b8697cccaf3fac0dfdb2df505")
+# upload_api()
+download_torrent_from_tracker_api("71c5f41076ce5d94666964d1c507b537d82f7c7b8697cccaf3fac0dfdb2df505")
