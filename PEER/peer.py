@@ -306,7 +306,7 @@ class Peer:
         try:
             tracker_socket = self.make_connection_to_tracker()
             print("connected to upload file")
-            data = generate_Torrent(filename)
+            data = generate_Torrent(filename) 
             if data is None:
                 return
 
@@ -356,8 +356,8 @@ class Peer:
             #  hanlde respond from tracker
 
             res = tracker_socket.recv(8192).decode("utf-8")
-            data = bencodepy.decode(res)
-            print(json.loads(data))
+            # data = bencodepy.decode(res)
+            # print(json.loads(data))
             data_torrent = json.loads(res)["torrent_file"]
             data_list = json.loads(res)["peer_list"]
             tracker_socket.close()

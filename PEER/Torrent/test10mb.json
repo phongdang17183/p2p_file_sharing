@@ -1,0 +1,20 @@
+{
+    "trackerIp": "192.168.244.43",
+    "magnetText": "cc1129e04fc1605c3d6ecb1d9ead222f272917fcfc2bf60bff0fc0b792d65e95",
+    "metaInfo": {
+        "name": "test10mb.txt",
+        "filesize": 4509250,
+        "piece_size": 512000,
+        "pieces": [
+            "793cc1988c28ff7d1b9ba0afe43dc713d7bfb45f58592fca715590ec30c2b223",
+            "1b222bfa42a3fc7d9ec522049b4c63223e88e51d027cf8972d9f66519186baca",
+            "40d4cf24e4718ef88f5558f4634937afc86af1250f03426e2c4a4b373ecab4ea",
+            "58fc2921d4a6aa7e70391c2c714bee32447006fb110f4578b1059f0589a1026c",
+            "7b29035c567f1fce7453bd639af4b8c9239f7c34cc6247a626f596ed491da8fc",
+            "39a8eb9471ea6343032831dd9dd47af3cf4012cb9b269d2aa7e0d8b6944c6970",
+            "4b1249cc44c05f453dc7c924b3d1987a5b70c79da1a5e81bcc1908dc26fb7ba8",
+            "7b3328b470b754a637b53228facf80587fe0599ed0da45b094758f8d78f761b7",
+            "31a41e409dcc4ec6d25fb92ddc1580795884f527e0389628a7c16ff1ec3eb759"
+        ]
+    }
+}
