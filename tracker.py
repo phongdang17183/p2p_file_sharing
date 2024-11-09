@@ -9,12 +9,12 @@ import json
 
 # Create a new client and connect to the server
 DATABASE_URL = "mongodb+srv://tranchinhbach:tranchinhbach@co3001.qkb5z.mongodb.net/?retryWrites=true&w=majority&appName=CO3001/"
-
+# DATABASE_URL = "mongodb://localhost:27017"
 
 class Tracker:
     def __init__(self, port):
         self.host = get_host_default()
-        self.port = port
+        self.port = 65432
 
         self.tracker_socket: socket.socket = None
 
@@ -32,8 +32,11 @@ class Tracker:
             self.database = MongoClient(DATABASE_URL, tlsCAFile=certifi.where())[
                 "tracker"
             ]
-            self.torrent_file = self.database["torrentfile"]
-            self.files = self.database["files"]
+            # self.database = MongoClient(DATABASE_URL, ssl=False)[
+            #     "p2pTracker"
+            # ]
+            self.torrent_file = self.database["torrentfiles"]
+            self.files = self.database["listpeers"]
 
             print("Connected to MongoDB successfully.")
         except Exception as e:

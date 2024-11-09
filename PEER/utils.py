@@ -4,8 +4,6 @@ import os
 from dotenv import load_dotenv
 import json
 import ast
-import bencode
-import bencodepy
 
 load_dotenv()
 trackerIP = os.getenv("TRACKERIP")
@@ -26,7 +24,7 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size=pieceSize):  # .txt
+def make_attribute_torrent(filename, piece_size=20):  # .txt
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 

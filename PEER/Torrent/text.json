@@ -1,0 +1,13 @@
+{
+    "trackerIp": "10.20.2.88",
+    "magnetText": "c427a2095751dc7bbbba8c3697165c33e260b364559f6cf674b6d74e9ae4e13e",
+    "metaInfo": {
+        "name": "text.txt",
+        "filesize": 30,
+        "piece_size": 20,
+        "pieces": [
+            "a331657864b3b8df50abeedccb64674051e9a343c06de31329e20ef944c124fd",
+            "045b53a4bd9227a60a9c8ff7f30e435c7a2588cb414658e54cd48918662b519d"
+        ]
+    }
+}
