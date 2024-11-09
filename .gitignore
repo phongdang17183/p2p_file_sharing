@@ -1,2 +1,4 @@
 .env
 TRACKER/node_modules
+PEER/Temp
+PEER copy/Temp

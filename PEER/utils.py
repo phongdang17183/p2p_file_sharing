@@ -24,7 +24,7 @@ def get_host_default():
     return ip
 
 
-def make_attribute_torrent(filename, piece_size=20):  # .txt
+def make_attribute_torrent(filename, piece_size = pieceSize ):  # .txt
     path = os.path.dirname(__file__)
     fullpath = os.path.join(path, "MyFolder", filename)
 
@@ -162,7 +162,7 @@ def check_file(torrent_file):
 def merge_temp_files(output_file, filename):
     """Gộp tất cả các tệp .tmp trong thư mục temp thành một tệp duy nhất."""
     path = os.path.dirname(__file__)
-    fullpath = os.path.join(path, "Download", output_file)
+    fullpath = os.path.join(path, "MyFolder", output_file)
 
     with open(fullpath, "wb") as outfile:
         # Lấy danh sách tất cả các tệp .tmp trong thư mục temp và sắp xếp chúng

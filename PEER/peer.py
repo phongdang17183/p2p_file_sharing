@@ -445,6 +445,8 @@ class Peer:
             magnet_text = data["magnetText"]
             filenameTorrent = filename.split(".")[0] + ".json"
             self.magnet_text_list[magnet_text] = filenameTorrent
+            print(response.json())
+            print(response.status_code)
         except Exception as e:
             print("something wrong when upload file: {}".format(e))
             
