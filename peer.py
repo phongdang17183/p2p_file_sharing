@@ -342,8 +342,8 @@ class Peer:
             tracker_socket.sendall(message.encode())
 
             res = tracker_socket.recv(8192)
-            res = bencodepy.decode(res)
-            print(res)
+            # res = bencodepy.decode(res)
+            # print(res)
             res = res.decode("utf-8")
 
             # debug

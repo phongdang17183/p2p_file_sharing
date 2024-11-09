@@ -144,11 +144,11 @@ class Tracker:
             "peer_list": peer_list,
         }
         message = json.dumps(data)
-        message = bencodepy.encode(data)
-        print(message)
-        peer_socket.sendall(message)
+        # message = bencodepy.encode(data)
+        # print(message)
+        # peer_socket.sendall(message)
 
-        # peer_socket.sendall(message.encode("utf-8"))
+        peer_socket.sendall(message.encode("utf-8"))
 
         print(f"Download file {magnetText} for {peer_addr}".encode("utf-8"))
 
