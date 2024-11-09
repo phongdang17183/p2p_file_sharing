@@ -188,20 +188,25 @@ def contruct_piece_to_peers(data: list):
     peers = []
     for entry in data:
         # Split into piece availability and peer info
-        piece_availability, peer_info = entry.split("] [")
-        piece_availability = ast.literal_eval(piece_availability + "]")
-        peer_info = ast.literal_eval("[" + peer_info)
+        piece_availability, peer_info = entry.split("] {")
+        piece_availability = piece_availability + "]"
+        peer_info = "{" + peer_info
+
+        piece_availability = ast.literal_eval(piece_availability)
+        peer_info = ast.literal_eval(peer_info)
         peers.append((piece_availability, peer_info))
 
+    print(peers)
+    # [([True, True], {'peerIp': '192.168.244.43', 'peerPort': 1000})]
+
     # Create a dictionary of pieces to the peers who have them
-    piece_to_peers = {
-        i: [
-            peer_info  # Store the actual peer IP and port tuple
-            for availability_list, peer_info in peers
-            if availability_list[i]  # Only include peer if they have the piece
-        ]
-        for i in range(
-            len(peers[0][0])
-        )  # Iterate through the number of pieces (based on the first peer's list)
-    }
+    piece_count = len(peers[0][0])
+    piece_to_peers = {}
+    for i in range(piece_count):
+        piece_to_peers[i] = []
+        for availability_list, peer_info in peers:
+            if availability_list[i]:
+                data = [peer_info["peerIp"], str(peer_info["peerPort"])]
+                piece_to_peers[i].append(data)
+
     return piece_to_peers

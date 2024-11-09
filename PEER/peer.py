@@ -30,8 +30,9 @@ class Peer:
 
     def download_status_from_peer(self, peer, data_torrent, status, lock):
         """Download the status"""
-        peer_socket = self.make_connection_to_peer(peer)
-        print("Make connect to peer to get status {} : {}".format(peer[0], peer[1]))
+        addr = (peer["peerIp"],peer["peerPort"])
+        peer_socket = self.make_connection_to_peer(addr)
+        print("Make connect to peer to get status {} : {}".format(peer["peerIp"], peer["peerPort"]))
         message = "STATUS " + data_torrent["magnetText"]
         peer_socket.sendall(message.encode())
         res = peer_socket.recv(8192).decode("utf-8")
@@ -84,7 +85,7 @@ class Peer:
         # Chờ tất cả các thread hoàn thành
         for thread in threadsStatus:
             thread.join()
-
+        print(list_status)
         piece_to_peer = contruct_piece_to_peers(list_status)
         print(piece_to_peer)
 
@@ -391,6 +392,7 @@ class Peer:
     def start_api(self):
         url= "http://localhost:3000/tracker/start"
         lists = get_magnetTexts_from_torrent()
+        self.magnet_text_list = lists
         print(type(lists))
         list = [listM for listM in lists]
         print(list)
