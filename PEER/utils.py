@@ -184,7 +184,7 @@ def merge_temp_files(output_file, filename):
     print(f"Đã gộp tất cả các tệp .tmp thành tệp duy nhất: {output_file}")
 
 
-def contruct_piece_to_peers(data: list):
+def contruct_piece_to_peers_api(data: list):  # for API call
     peers = []
     for entry in data:
         # Split into piece availability and peer info
@@ -209,4 +209,26 @@ def contruct_piece_to_peers(data: list):
                 data = [peer_info["peerIp"], str(peer_info["peerPort"])]
                 piece_to_peers[i].append(data)
 
+    return piece_to_peers
+
+def contruct_piece_to_peers(data: list):
+    peers = []
+    for entry in data:
+        # Split into piece availability and peer info
+        piece_availability, peer_info = entry.split("] [")
+        piece_availability = ast.literal_eval(piece_availability + "]")
+        peer_info = ast.literal_eval("[" + peer_info)
+        peers.append((piece_availability, peer_info))
+
+    # Create a dictionary of pieces to the peers who have them
+    piece_to_peers = {
+        i: [
+            peer_info  # Store the actual peer IP and port tuple
+            for availability_list, peer_info in peers
+            if availability_list[i]  # Only include peer if they have the piece
+        ]
+        for i in range(
+            len(peers[0][0])
+        )  # Iterate through the number of pieces (based on the first peer's list)
+    }
     return piece_to_peers

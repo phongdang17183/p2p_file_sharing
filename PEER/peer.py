@@ -3,7 +3,6 @@ from threading import Thread, Lock
 import json
 import ast
 import os
-from dotenv import load_dotenv
 from utils import *
 import random
 import time
@@ -30,9 +29,13 @@ class Peer:
 
     def download_status_from_peer(self, peer, data_torrent, status, lock):
         """Download the status"""
-        addr = (peer["peerIp"],peer["peerPort"])
-        peer_socket = self.make_connection_to_peer(addr)
-        print("Make connect to peer to get status {} : {}".format(peer["peerIp"], peer["peerPort"]))
+        # addr = (peer["peerIp"],peer["peerPort"])            # for API call
+        # peer_socket = self.make_connection_to_peer(addr)    # for API call
+        # print("Make connect to peer to get status {} : {}".format(peer["peerIp"], peer["peerPort"])) #for API call
+        
+        peer_socket = self.make_connection_to_peer(peer)
+        print("Make connect to peer to get status") #for API call
+        
         message = "STATUS " + data_torrent["magnetText"]
         peer_socket.sendall(message.encode())
         res = peer_socket.recv(8192).decode("utf-8")
@@ -53,10 +56,10 @@ class Peer:
             peer_socket.sendall(message.encode())
             res = peer_socket.recv(8192)
 
-            # debug
-            with open("t.txt", "wb") as file:
-                a = file.write(res)
-                print(a)
+            # # debug
+            # with open("t.txt", "wb") as file:
+            #     a = file.write(res)
+            #     print(a)
 
             peer_socket.close()
 
@@ -86,7 +89,10 @@ class Peer:
         for thread in threadsStatus:
             thread.join()
         print(list_status)
+        
+        # piece_to_peer = contruct_piece_to_peers_api(list_status) # for API call
         piece_to_peer = contruct_piece_to_peers(list_status)
+        
         print(piece_to_peer)
 
         # {0: true,
@@ -133,8 +139,10 @@ class Peer:
     def download(self, magnet_text):
         """Handle download"""
         try:
-            # data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
-            data_torrent, peer_list = self.download_torrent_from_tracker_api(magnet_text)
+            
+            data_torrent, peer_list = self.download_torrent_from_tracker(magnet_text)
+            # data_torrent, peer_list = self.download_torrent_from_tracker_api(magnet_text) # for API call
+            
             print(data_torrent)
             print(peer_list)
         except Exception as e:

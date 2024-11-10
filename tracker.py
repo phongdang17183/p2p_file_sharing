@@ -9,12 +9,12 @@ import json
 
 # Create a new client and connect to the server
 DATABASE_URL = "mongodb+srv://tranchinhbach:tranchinhbach@co3001.qkb5z.mongodb.net/?retryWrites=true&w=majority&appName=CO3001/"
-# DATABASE_URL = "mongodb://localhost:27017"
+
 
 class Tracker:
     def __init__(self, port):
         self.host = get_host_default()
-        self.port = 65432
+        self.port = port
 
         self.tracker_socket: socket.socket = None
 
@@ -32,9 +32,6 @@ class Tracker:
             self.database = MongoClient(DATABASE_URL, tlsCAFile=certifi.where())[
                 "tracker"
             ]
-            # self.database = MongoClient(DATABASE_URL, ssl=False)[
-            #     "p2pTracker"
-            # ]
             self.torrent_file = self.database["torrentfiles"]
             self.files = self.database["listpeers"]
 
@@ -67,10 +64,10 @@ class Tracker:
                     {"$addToSet": {"list_peer": address}},
                 )
 
-            else:
-                document = {"magnetText": magnet, "list_peer": [address]}
-                print(address)
-                self.files.insert_one(document)
+            # else:
+            #     document = {"magnetText": magnet, "list_peer": [address]}
+            #     print(address)
+            #     self.files.insert_one(document)
         print(f"recieve magnet {magnet_list} for {peer_addr}")
 
         peer_socket.send(f"Updated successfully".encode("utf-8"))
@@ -102,7 +99,13 @@ class Tracker:
             {"magnetText": data["magnetText"]}
         )
         if existing_document:
-            existing_document
+            self.files.update_one(
+
+                {"magnetText": data["magnetText"]},
+
+                {"$addToSet": {"list_peer": addr}},
+
+            )
             peer_socket.send(f"File already exists".encode("utf-8"))
             print("File already exists")
             return
@@ -139,6 +142,12 @@ class Tracker:
             "torrent_file": torrent_file,
             "peer_list": peer_list,
         }
+        
+        self.files.update_one(
+            {"magnetText": magnetText},
+            {"$addToSet": {"list_peer": addr}},
+        )
+        
         message = json.dumps(data)
         peer_socket.sendall(message.encode("utf-8"))
 
