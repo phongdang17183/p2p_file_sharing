@@ -6,7 +6,7 @@ import os
 from utils import *
 import random
 import time
-
+import 
 
 class Peer:
 
@@ -304,6 +304,7 @@ class Peer:
             data = generate_Torrent(filename)
             if data is None:
                 return
+   # -------------------------------------------#
 
             message = " ".join(["UPLOAD", self.peer_host, str(self.peer_port), data])
 
@@ -372,3 +373,80 @@ class Peer:
             print("Something when wrong when exit")
 
     # -------------------------------------------#
+    # -----------TRACKER INTERACTION WITH API HTTP-------------#
+    
+    def start_api(self):
+        url= "http://localhost:3000/tracker/start"
+        lists = get_magnetTexts_from_torrent()
+        self.magnet_text_list = lists
+        print(type(lists))
+        list = [listM for listM in lists]
+        print(list)
+        params = {
+            "peerIp": self.peer_host,
+            "peerPort": self.peer_port,
+            "magnetList": list
+        }
+        
+        response = requests.post(url, json=params)
+        print(response.json())
+        
+        listen_thread = Thread(target=self.listen, args=())
+        listen_thread.start()
+        
+    def get_all_file_api(self):
+        url= "http://localhost:3000/tracker/getAllTorrents"
+        response = requests.get(url)
+        return response.json()
+    
+    def exit_api(self):
+        self.running = False
+        url = "http://localhost:3000/tracker/exit"
+        param ={
+            "peerIp": self.peer_host,
+            "peerPort": self.peer_port
+        }
+        response = requests.post(url, json=param)
+        print(response.json())
+
+    def upload_api(self, filename):
+        try:
+            data = generate_Torrent(filename) 
+            if data is None:
+                return
+        
+            url = "http://localhost:3000/tracker/upload"
+
+            data = json.loads(data)
+            param = {
+                "peerIp": self.peer_host,
+                "peerPort": self.peer_port,
+                "Torrent": data
+            }
+
+            response = requests.post(url, json=param)
+            if(response.status_code != 409):
+                create_torrent_file(filename, data)
+                
+            magnet_text = data["magnetText"]
+            filenameTorrent = filename.split(".")[0] + ".json"
+            self.magnet_text_list[magnet_text] = filenameTorrent
+            print(response.json())
+            print(response.status_code)
+        except Exception as e:
+            print("something wrong when upload file: {}".format(e))
+            
+    def download_torrent_from_tracker_api(self, magnetText):
+        url = "http://localhost:3000/tracker/download"
+        param ={
+            "peerIp": self.peer_host,
+            "peerPort": self.peer_port,
+            "magnetText": magnetText
+        }
+        response = requests.get(url, json=param)
+       
+        data_torent = response.json()["torrent"]
+        peerlist = response.json()["listPeer"]
+
+        
+        return data_torent, peerlist
